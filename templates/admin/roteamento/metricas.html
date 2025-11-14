@@ -1,0 +1,261 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Métricas de Eficiência - Admin{% endblock %}
+{% block page_title %}📊 Métricas de Eficiência{% endblock %}
+
+{% block content %}
+<div class="metricas-container fade-in">
+
+    <!-- Cabeçalho -->
+    <div class="metricas-header">
+        <div class="header-info">
+            <h2>Análise Comparativa de Desempenho</h2>
+            <p>Eficiência logística correlacionada entre tempo, distância, custo e clusterização.</p>
+        </div>
+
+        <div class="header-stats">
+            <div class="stat">
+                <span class="stat-number">{{ total_pedidos }}</span>
+                <span class="stat-label">Pedidos</span>
+            </div>
+            <div class="stat">
+                <span class="stat-number">{{ total_entregadores }}</span>
+                <span class="stat-label">Entregadores</span>
+            </div>
+        </div>
+    </div>
+
+    {% if not tem_dados %}
+    <div class="empty-state">
+        <div class="empty-icon">📈</div>
+        <h3>Nenhum dado de otimização encontrado</h3>
+        <p>Execute uma otimização primeiro para ver as métricas comparativas.</p>
+
+        <div class="acoes-botoes">
+            <a href="{{ url_for('roteamento.index') }}" class="btn btn-primary">🚀 Executar Otimização</a>
+            <a href="{{ url_for('roteamento.simular_pedidos') }}" class="btn btn-info">➕ Simular Pedidos</a>
+        </div>
+    </div>
+
+    {% else %}
+    {% if not relatorio %}
+    <div class="info-state">
+        <div class="info-icon">🔍</div>
+        <h3>Dados brutos disponíveis</h3>
+        <p>Gere o relatório comparativo para visualização analítica.</p>
+        <a href="{{ url_for('roteamento.gerar_relatorio_completo') }}" class="btn btn-success">
+            📊 Gerar Relatório Comparativo
+        </a>
+    </div>
+
+    {% else %}
+    <!-- RELATÓRIO COMPLETO -->
+    <div class="relatorio-completo">
+
+        <!-- Indicador Global -->
+        <div class="score-geral-card">
+            <span class="emoji">{{ relatorio.kpi_emoji }}</span>
+            <div class="score-label">Score Global da Operação</div>
+            <div class="score-number">{{ relatorio.kpi_score }}/100</div>
+        </div>
+
+        <!-- KPIs -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                🕒
+                <h4>Tempo Médio (min)</h4>
+                <div class="kpi-number">{{ "%.1f"|format(relatorio.kpi.tempo_medio) }}</div>
+            </div>
+            <div class="kpi-card">
+                🚚
+                <h4>Distância Média (km)</h4>
+                <div class="kpi-number">{{ "%.1f"|format(relatorio.kpi.distancia_media) }}</div>
+            </div>
+            <div class="kpi-card">
+                💰
+                <h4>Custo/km</h4>
+                <div class="kpi-number">R$ {{ "%.2f"|format(relatorio.kpi.custo_km) }}</div>
+            </div>
+            <div class="kpi-card">
+                ⚡
+                <h4>Eficiência Geral</h4>
+                <div class="kpi-number">{{ "%.1f"|format(relatorio.kpi.eficiencia * 100) }}%</div>
+            </div>
+        </div>
+
+        <!-- Resumo -->
+        <div class="resumo-rapido">
+            <h3>🎯 Resumo da Otimização</h3>
+            <div class="resumo-card destaque">
+                <div class="resumo-texto">
+                    {{ relatorio.comparacao_rapida }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Heatmap de Clusters -->
+        <div class="heatmap-grid">
+            <div class="grafico-card">
+                <h4>🔥 Heatmap de Clusterização</h4>
+                <canvas id="graficoHeatmap"></canvas>
+                <small>Mostra concentração de entregas por região</small>
+            </div>
+        </div>
+
+        <!-- Congestionamento de nós -->
+        <div class="hotnodes-section">
+            <h3>🔥 Nós Congestionados do Grafo</h3>
+            <ul>
+                {% for no in relatorio.nos_congestionados %}
+                <li>{{ no.nome }} — <strong>{{ no.carga }} conexões</strong></li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <!-- Gráficos comparativos -->
+        <div class="graficos-grid">
+            <div class="grafico-card">
+                <h4>⏱️ Tempo (Comparação)</h4>
+                <canvas id="graficoTempo"></canvas>
+            </div>
+
+            <div class="grafico-card">
+                <h4>🚗 Distância Total (km)</h4>
+                <canvas id="graficoDistancia"></canvas>
+            </div>
+
+            <div class="grafico-card">
+                <h4>⚡ Eficiência (%)</h4>
+                <canvas id="graficoEficiencia"></canvas>
+            </div>
+        </div>
+
+        <!-- Tabela -->
+        {% if relatorio.tabela_comparativa %}
+        <div class="tabela-section">
+            <h3>📋 Comparação Detalhada dos Métodos</h3>
+            <div class="tabela-comparativa">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Método</th>
+                            <th>Tempo Total</th>
+                            <th>Distância</th>
+                            <th>Custo</th>
+                            <th>Eficiência</th>
+                            <th>Entregas/Hora</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for metodo in relatorio.tabela_comparativa %}
+                        <tr class="{% if metodo.vencedor %}destaque-linha{% endif %}">
+                            <td>{{ metodo.metodo }}</td>
+                            <td>{{ "%.0f"|format(metodo.tempo_minutos) }} min</td>
+                            <td>{{ "%.1f"|format(metodo.distancia_km) }} km</td>
+                            <td>R$ {{ "%.2f"|format(metodo.custo) }}</td>
+                            <td>{{ "%.1f"|format(metodo.eficiencia * 100) }}%</td>
+                            <td>{{ "%.1f"|format(metodo.entregas_hora) }}/h</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="acoes-section">
+            <div class="acoes-botoes">
+                <a href="{{ url_for('roteamento.gerar_relatorio_completo') }}" class="btn btn-primary">
+                    🔄 Atualizar
+                </a>
+                <a href="{{ url_for('roteamento.index') }}" class="btn btn-success">
+                    🚀 Nova Otimização
+                </a>
+                <button onclick="window.print()" class="btn btn-secondary">
+                    🖨️ Imprimir
+                </button>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    {% endif %}
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const relatorio = {{ relatorio | tojson }};
+    const ctx1 = document.getElementById('graficoTempo');
+    const ctx2 = document.getElementById('graficoDistancia');
+    const ctx3 = document.getElementById('graficoEficiencia');
+    const ctxHeat = document.getElementById('graficoHeatmap');
+
+    Chart.defaults.borderColor = '#ddd';
+
+    new Chart(ctx1, {
+        type: 'bar',
+        data: {
+            labels: relatorio.labels,
+            datasets: [{
+                label: 'Minutos',
+                data: relatorio.tempo_dataset
+            }]
+        }
+    });
+
+    new Chart(ctx2, {
+        type: 'bar',
+        data: {
+            labels: relatorio.labels,
+            datasets: [{
+                label: 'Km',
+                data: relatorio.distancia_dataset
+            }]
+        }
+    });
+
+    new Chart(ctx3, {
+        type: 'radar',
+        data: {
+            labels: relatorio.labels,
+            datasets: [{
+                label: 'Eficiência %',
+                data: relatorio.eficiencia_dataset
+            }]
+        }
+    });
+
+    // Heatmap simples (densidade)
+    new Chart(ctxHeat, {
+        type: 'bubble',
+        data: {
+            datasets: relatorio.heatmap_dataset
+        }
+    });
+</script>
+
+<style>
+.fade-in { animation: fade .4s ease-in-out; }
+@keyframes fade { from {opacity:0;} to {opacity:1;} }
+
+.metricas-header {
+    display: flex; justify-content: space-between; background: #444; padding: 1.5rem; border-radius: 10px; color:white;
+}
+.kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap: 1rem; margin:2rem 0;}
+.kpi-card { background:white; padding:1rem; border-radius:8px; text-align:center; font-weight:bold; box-shadow:0 2px 8px rgba(0,0,0,0.1);}
+.kpi-number { font-size:1.8rem; color:#28a745; }
+
+.score-geral-card {
+    background: #ffe; padding:1rem; border-radius:8px; margin-top:1rem; text-align:center;
+}
+.score-number { font-size:2rem; font-weight:bold; }
+
+.graficos-grid {
+    display: grid; grid-template-columns: repeat(auto-fit,minmax(300px,1fr)); gap:1rem; margin-top:2rem;
+}
+.heatmap-grid { margin-top:2rem; }
+.hotnodes-section { margin:2rem 0; }
+
+.tabela-comparativa table td { font-size: .9rem; }
+.destaque-linha { background: #e1ffea; font-weight:bold; }
+</style>
+{% endblock %}

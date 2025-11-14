@@ -1,0 +1,38 @@
+{% extends "admin/base.html" %}
+{% block title %}Calcular Rota — Admin{% endblock %}
+{% block page_title %}🧭 Calcular Rota entre Localizações{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width:840px;">
+  <form action="{{ url_for('roteamento.calcular_rota') }}" method="post">
+    <div style="display:flex; gap:12px;">
+      <div style="flex:1;">
+        <label>Origem (ID)</label>
+        <input type="number" name="origem_id" required class="form-control">
+      </div>
+      <div style="flex:1;">
+        <label>Destino (ID)</label>
+        <input type="number" name="destino_id" required class="form-control">
+      </div>
+      <div style="width:160px;">
+        <label>Algoritmo</label>
+        <select name="alg" class="form-control">
+          <option value="a_estrela">A*</option>
+          <option value="dijkstra">Dijkstra</option>
+        </select>
+      </div>
+    </div>
+
+    <div style="margin-top:12px;">
+      <button class="btn btn-primary" type="submit">Calcular</button>
+    </div>
+  </form>
+
+  {% if resultado %}
+  <hr>
+  <h4>Resultado</h4>
+  <p><strong>Caminho:</strong> {{ resultado.caminho }}</p>
+  <p><strong>Custo:</strong> {{ resultado.custo }}</p>
+  {% endif %}
+</div>
+{% endblock %}

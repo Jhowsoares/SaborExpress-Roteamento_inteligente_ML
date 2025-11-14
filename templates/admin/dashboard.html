@@ -1,0 +1,63 @@
+{% extends "admin/base.html" %}
+{% block title %}Dashboard — Admin{% endblock %}
+{% block page_title %}<span class="material-icons">insights</span> Dashboard Administrativo{% endblock %}
+
+{% block header_actions %}
+  <a class="btn btn-outline" href="{{ url_for('roteamento.index') }}">
+    <span class="material-icons">route</span> Ir para Roteamento
+  </a>
+  <a class="btn btn-primary" href="{{ url_for('admin.admin_produto_novo') }}">
+    <span class="material-icons">add</span> Novo Produto
+  </a>
+{% endblock %}
+
+{% block content %}
+<div class="grid" style="display:grid; grid-template-columns: repeat(3,1fr); gap:12px;">
+  <div class="card">
+    <h4><span class="material-icons">inventory_2</span> Total Pedidos</h4>
+    <p style="font-size:28px; margin:6px 0;">{{ stats.pedidos or 0 }}</p>
+    <small class="muted">Últimas 24h: {{ stats.pedidos_24h or 0 }}</small>
+  </div>
+
+  <div class="card">
+    <h4><span class="material-icons">local_shipping</span> Entregadores Disponíveis</h4>
+    <p style="font-size:28px; margin:6px 0;">{{ stats.entregadores or 0 }}</p>
+    <small class="muted">Disponíveis agora</small>
+  </div>
+
+  <div class="card">
+    <h4><span class="material-icons">straighten</span> Distância média/rota</h4>
+    <p style="font-size:28px; margin:6px 0;">{{ stats.distancia_media_km|default(0)|round(2) }} km</p>
+    <small class="muted">Métrica estimada</small>
+  </div>
+</div>
+
+<div style="margin-top:14px;">
+  <div class="card">
+    <h4><span class="material-icons">schedule</span> Últimos Pedidos</h4>
+    <table class="admin-table">
+      <thead>
+        <tr><th>#</th><th>Cliente</th><th>Total</th><th>Status</th><th>Ações</th></tr>
+      </thead>
+      <tbody>
+        {% for p in ultimos_pedidos %}
+        <tr>
+          <td>{{ p.id }}</td>
+          <td>{{ p.user.email if p.user else p.endereco_entrega[:18] }}</td>
+          <td>R$ {{ "%.2f"|format(p.total) }}</td>
+          <td>{{ p.status }}</td>
+          <td>
+            <a class="btn btn-outline" href="{{ url_for('admin.admin_pedido_detalhe', pedido_id=p.id) }}">
+              <span class="material-icons">visibility</span> Ver
+            </a>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="5" class="muted">Nenhum pedido recente</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+[file content end]

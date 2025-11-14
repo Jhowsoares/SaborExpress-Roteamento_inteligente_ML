@@ -1,0 +1,116 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<div class="container">
+    <h1>📊 Resultado da Otimização K-Means</h1>
+    
+    <div class="alert alert-success">
+        <strong>✅ Otimização completa executada com sucesso.</strong>
+    </div>
+
+    <!-- Métricas Principais -->
+    <div class="metrics-grid">
+        <div class="metric-card">
+            <div class="metric-value">{{ resultado.metricas.total_entregas }}</div>
+            <div class="metric-label">Total de Entregas</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-value">{{ "%.1f"|format(resultado.metricas.total_distancia_km) }}</div>
+            <div class="metric-label">Distância Total (km)</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-value">{{ resultado.clusters_otimizados|length }}</div>
+            <div class="metric-label">Rotas Otimizadas</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-value">{{ "%.0f"|format(resultado.metricas.eficiencia_media * 100) }}%</div>
+            <div class="metric-label">Eficiência</div>
+        </div>
+    </div>
+
+    <!-- Clusters Gerados -->
+    <div class="section">
+        <h2>📋 Clusters Gerados</h2>
+        
+        {% for cluster in resultado.clusters_otimizados %}
+        <div class="cluster-card">
+            <h3>🚗 Rota {{ loop.index }} - {{ cluster.pedidos|length }} pedidos</h3>
+            
+            {% if cluster.entregador_nome %}
+            <p><strong>Entregador:</strong> {{ cluster.entregador_nome }}</p>
+            {% endif %}
+            
+            {% if cluster.sequencia_otimizada %}
+            <div class="route-sequence">
+                <strong>Ordem de Entrega:</strong>
+                <ol>
+                    {% for pedido_id in cluster.sequencia_otimizada %}
+                    <li>Pedido {{ pedido_id }}</li>
+                    {% endfor %}
+                </ol>
+            </div>
+            {% endif %}
+            
+            <div class="cluster-stats">
+                <span><strong>Distância:</strong> {{ "%.1f"|format(cluster.distancia_total or 0) }} km</span>
+                <span><strong>Tempo estimado:</strong> {{ "%.0f"|format(cluster.tempo_total or 0) }} min</span>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="action-buttons">
+        <a href="{{ url_for('roteamento.index') }}" class="btn btn-secondary">← Voltar</a>
+        <a href="{{ url_for('roteamento.otimizar_rotas_completas') }}" class="btn btn-primary">🔄 Nova Otimização</a>
+    </div>
+</div>
+
+<style>
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin: 30px 0;
+}
+.metric-card {
+    background: white;
+    padding: 25px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+.metric-value {
+    font-size: 2.5em;
+    font-weight: bold;
+    color: #007bff;
+}
+.metric-label {
+    color: #666;
+    margin-top: 10px;
+}
+.cluster-card {
+    background: white;
+    padding: 20px;
+    margin: 15px 0;
+    border-radius: 8px;
+    border-left: 4px solid #007bff;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+.route-sequence {
+    margin: 15px 0;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 5px;
+}
+.cluster-stats {
+    display: flex;
+    gap: 20px;
+    margin-top: 10px;
+}
+.action-buttons {
+    margin-top: 30px;
+    display: flex;
+    gap: 15px;
+}
+</style>
+{% endblock %}

@@ -1,0 +1,124 @@
+{% extends "admin/base.html" %}
+{% block title %}Grafos de Rotas - Sabor Express{% endblock %}
+{% block page_title %}🕸️ Visualização de Grafos{% endblock %}
+
+{% block content %}
+<div class="roteamento-container">
+    <style>
+        /* Manter apenas estilos específicos do grafo */
+        #grafo-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--admin-border);
+            border-radius: var(--admin-radius);
+            background-color: var(--admin-bg);
+            position: relative;
+            margin-bottom: 20px;
+            overflow: hidden;
+            display: block;
+        }
+
+        .node-tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.85);
+            color: #fff;
+            padding: 8px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            pointer-events: none;
+            z-index: 2000;
+            display: none;
+            max-width: 320px;
+            box-shadow: var(--admin-shadow-lg);
+        }
+
+        .grafo-empty {
+            height: 280px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--admin-text-light);
+            font-size: 16px;
+            border-radius: var(--admin-radius);
+            background: linear-gradient(90deg, var(--admin-bg-light), #fbfbfb);
+            border: 1px dashed var(--admin-border);
+            margin-bottom: 1rem;
+        }
+
+        .grafo-loading {
+            padding: 1rem;
+            text-align: center;
+            color: var(--admin-text);
+        }
+    </style>
+
+    <div class="grafo-controls card p-3 mb-3">
+        <div class="btn-group mb-2">
+            <button id="btn-ligar-forcas" class="btn btn-outline btn-sm">🔄 Reorganizar</button>
+            <button id="btn-animar-astar" class="btn btn-outline btn-sm">🚀 Simular A*</button>
+            <button id="btn-reset-grafo" class="btn btn-outline btn-sm">🔄 Reset</button>
+            <button id="btn-recarregar-grafo" class="btn btn-outline btn-sm">🔁 Recarregar</button>
+            <button class="btn btn-outline btn-sm" onclick="exportarGrafo()">💾 Exportar</button>
+        </div>
+        
+        <div class="d-flex gap-2 flex-wrap">
+            <button id="btn-simulacao-passo" class="btn btn-outline btn-sm">🧠 Simulação Passo-a-Passo</button>
+            <button id="btn-heat" class="btn btn-outline btn-sm">🌡️ Congestionamento ODS-11</button>
+        </div>
+
+        <div class="mt-2 form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="toggle-labels" checked>
+            <label class="form-check-label" for="toggle-labels">Mostrar Labels</label>
+        </div>
+
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="toggle-clusters" checked>
+            <label class="form-check-label" for="toggle-clusters">Mostrar Centros de Cluster</label>
+        </div>
+    </div>
+
+    <div class="grafo-legend mb-3">
+        <span class="badge bg-danger me-2">🔴 Restaurante</span>
+        <span class="badge bg-primary me-2">🔵 Entrega</span>
+        <span class="badge bg-success me-2">🏁 Centros</span>
+    </div>
+
+    <div id="grafo-container">
+        <div id="grafo-loading" class="grafo-loading">Carregando grafo... ⏳</div>
+    </div>
+
+    <div id="astar-step" class="card mt-3 p-3">
+        <strong>Estado da Simulação:</strong> <span>aguardando...</span>
+    </div>
+
+    <div class="node-tooltip"></div>
+
+    <div class="grafo-stats mt-3 card p-3">
+        <strong>Nós:</strong> <span id="node-count">0</span> |
+        <strong>Arestas:</strong> <span id="edge-count">0</span>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    <script src="{{ url_for('static', filename='js/grafo.js') }}"></script>
+
+    <script>
+        async function carregarGrafo() {
+            try {
+                const res = await fetch("{{ url_for('roteamento.api_grafo') }}");
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                const dados = await res.json();
+                window.grafoData = dados;
+                if (typeof inicializarGrafo === 'function') {
+                    inicializarGrafo(dados);
+                }
+            } catch (err) {
+                console.error("Erro ao carregar grafo:", err);
+                document.getElementById('grafo-container').innerHTML = 
+                    `<div class="grafo-empty">Erro ao carregar grafo: ${err.message}</div>`;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', carregarGrafo);
+    </script>
+</div>
+{% endblock %}

@@ -1,0 +1,54 @@
+# routes/api.py - VERSÃO CORRIGIDA
+from flask import jsonify, request, current_app
+import traceback
+from models import Pedido, Entregador, Localizacao, Rota
+from routes.utils import (
+    admin_required, serialize_localizacao, serialize_entregador,
+    serialize_rota, serialize_pedido, serialize_otimizador_result,
+    montar_grafo_data
+)
+
+# MUDAR: Importar do blueprint correto
+from routes.roteamento import roteamento_bp
+
+@roteamento_bp.route("/api/grafo")
+@admin_required
+def api_grafo():
+    """
+    API que retorna os dados do grafo / visualização em JSON.
+    """
+    try:
+        # Dados básicos do banco
+        pedidos = Pedido.query.filter_by(status='pendente').all()
+        entregadores = Entregador.query.all()
+        localizacoes = Localizacao.query.all()
+        rotas = Rota.query.all()
+
+        # Serializar dados básicos
+        dados_grafo = montar_grafo_data(localizacoes, rotas)
+        
+        # Adicionar clusters se disponível
+        try:
+            from algoritmos.otimizador_integrado import OtimizadorEntregas
+            ot = OtimizadorEntregas()
+            localizacoes_dict = {loc.id: loc for loc in localizacoes}
+            
+            resultado = ot.otimizar_rotas_completas(
+                pedidos=pedidos,
+                localizacoes_dict=localizacoes_dict,
+                entregadores=entregadores
+            )
+            
+            dados_grafo['clusters'] = resultado.get('clusters_otimizados', [])
+            dados_grafo['metricas'] = resultado.get('metricas', {})
+            
+        except Exception as e:
+            current_app.logger.warning(f"Otimizador não disponível: {e}")
+            dados_grafo['clusters'] = []
+            dados_grafo['metricas'] = {}
+
+        return jsonify(dados_grafo), 200
+
+    except Exception as e:
+        current_app.logger.error(f"Erro em api_grafo: {str(e)}")
+        return jsonify({'error': 'Erro interno no servidor'}), 500

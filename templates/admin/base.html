@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>{% block title %}Admin — Sabor Express{% endblock %}</title>
+
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+</head>
+<body>
+  <div class="admin-wrap">
+    <aside class="admin-sidebar">
+      <h2><span class="material-icons">restaurant</span> Sabor Express — Admin</h2>
+      <p class="muted">Painel de controle</p>
+
+      <nav class="sidebar-nav">
+        <a class="nav-link {% if request.endpoint == 'admin.admin_dashboard' %}active{% endif %}" href="{{ url_for('admin.admin_dashboard') }}">
+          <span class="material-icons">dashboard</span> Dashboard
+        </a>
+        <a class="nav-link {% if request.endpoint.startswith('admin.admin_pedidos') %}active{% endif %}" href="{{ url_for('admin.admin_pedidos') }}">
+          <span class="material-icons">inventory_2</span> Pedidos
+        </a>
+        <a class="nav-link {% if request.endpoint.startswith('admin.admin_produtos') %}active{% endif %}" href="{{ url_for('admin.admin_produtos') }}">
+          <span class="material-icons">fastfood</span> Produtos
+        </a>
+        <a class="nav-link {% if request.endpoint.startswith('roteamento.index') %}active{% endif %}" href="{{ url_for('roteamento.index') }}">
+          <span class="material-icons">route</span> Roteamento
+        </a>
+        <a class="nav-link {% if request.endpoint.startswith('roteamento.grafo_interativo') %}active{% endif %}" href="{{ url_for('roteamento.grafo_interativo') }}">
+          <span class="material-icons">account_tree</span> Grafo Interativo
+        </a>
+        <hr>
+        <a class="nav-link" href="{{ url_for('admin.admin_logout') }}">
+          <span class="material-icons">logout</span> Sair
+        </a>
+      </nav>
+
+      <div class="admin-sidebar-footer">
+        <small class="muted">Logado como: <strong>{{ session.get('admin_username','admin') }}</strong></small>
+      </div>
+    </aside>
+
+    <main class="admin-main">
+      <header class="admin-header">
+        <div>
+          <h1>{% block page_title %}Painel{% endblock %}</h1>
+          <small class="muted">{% block page_subtitle %}{% endblock %}</small>
+        </div>
+        <div class="header-actions">
+          {% block header_actions %}{% endblock %}
+        </div>
+      </header>
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <div class="mb-3">
+            {% for category, message in messages %}
+              <div class="alert alert-{{ 'error' if category == 'danger' else category }}">
+                {{ message }}
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+
+      <section>
+        {% block content %}{% endblock %}
+      </section>
+    </main>
+  </div>
+
+  {% block scripts %}{% endblock %}
+</body>
+</html>
+[file content end]

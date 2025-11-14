@@ -1,0 +1,45 @@
+{% extends "admin/base.html" %}
+{% block title %}Pedido #{{ pedido.id }}{% endblock %}
+{% block page_title %}Pedido #{{ pedido.id }}{% endblock %}
+
+{% block header_actions %}
+  <a class="btn btn-outline" href="{{ url_for('admin.admin_pedidos') }}">Voltar</a>
+  <form action="{{ url_for('admin.admin_atualizar_status', pedido_id=pedido.id) }}" method="post" style="display:inline;">
+    <select name="status">
+      <option value="pendente" {% if pedido.status=='pendente' %}selected{% endif %}>pendente</option>
+      <option value="em_rota" {% if pedido.status=='em_rota' %}selected{% endif %}>em_rota</option>
+      <option value="entregue" {% if pedido.status=='entregue' %}selected{% endif %}>entregue</option>
+      <option value="cancelado" {% if pedido.status=='cancelado' %}selected{% endif %}>cancelado</option>
+    </select>
+    <button class="btn btn-primary" type="submit">Atualizar</button>
+  </form>
+{% endblock %}
+
+{% block content %}
+<div class="card">
+  <h3>Dados do Pedido</h3>
+  <p><strong>Cliente:</strong> {{ pedido.user.email if pedido.user else 'Anon' }}</p>
+  <p><strong>Endereço:</strong> {{ pedido.endereco_entrega or '—' }}</p>
+  <p><strong>Total:</strong> R$ {{ "%.2f"|format(pedido.total) }}</p>
+  <p><strong>Status:</strong> {{ pedido.status }}</p>
+
+  <h4>Itens</h4>
+  <table class="admin-table">
+    <thead><tr><th>Produto</th><th>Qt</th><th>Unit</th><th>Subtotal</th></tr></thead>
+    <tbody>
+      {% for it in pedido.itens %}
+      <tr>
+        <td>{{ it.produto.nome if it.produto else it.produto_id }}</td>
+        <td>{{ it.quantidade }}</td>
+        <td>R$ {{ "%.2f"|format(it.preco_unitario) }}</td>
+        <td>R$ {{ "%.2f"|format(it.preco_unitario * it.quantidade) }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <div style="margin-top:12px;">
+    <a class="btn btn-outline" href="{{ url_for('admin.admin_pedidos') }}">Voltar</a>
+  </div>
+</div>
+{% endblock %}

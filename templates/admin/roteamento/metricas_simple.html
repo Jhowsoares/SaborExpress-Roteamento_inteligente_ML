@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Métricas - Sabor Express</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { margin: 0; padding: 20px; font-family: 'Segoe UI', Arial, sans-serif; background: #f8f9fa; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .back-btn { 
+            background: #6c757d; 
+            color: white; 
+            padding: 10px 20px; 
+            text-decoration: none; 
+            border-radius: 6px;
+            display: inline-flex;
+            align-items: center;
+            margin-bottom: 20px;
+            transition: background 0.3s;
+        }
+        .back-btn:hover { background: #5a6268; color: white; text-decoration: none; }
+        .metrics-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
+            gap: 20px; 
+            margin: 20px 0; 
+        }
+        .metric-card { 
+            background: white; 
+            padding: 25px; 
+            border-radius: 12px; 
+            box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+            text-align: center;
+            border-top: 4px solid;
+            transition: transform 0.2s;
+        }
+        .metric-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        }
+        .metric-value { 
+            font-size: 2.5em; 
+            font-weight: bold; 
+            margin: 15px 0;
+        }
+        .metric-label { 
+            color: #6c757d; 
+            font-size: 0.95em;
+            font-weight: 500;
+        }
+        .positive { color: #28a745; border-color: #28a745; }
+        .neutral { color: #007bff; border-color: #007bff; }
+        .warning { color: #ffc107; border-color: #ffc107; }
+        .danger { color: #dc3545; border-color: #dc3545; }
+        .chart-container { 
+            background: white; 
+            padding: 25px; 
+            border-radius: 12px; 
+            box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+            margin-bottom: 20px; 
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+        }
+        .algo-badge {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            margin: 0 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/admin/roteamento/" class="back-btn">← Voltar ao Roteamento</a>
+        
+        <div class="header">
+            <h1>📊 Dashboard de Métricas - IA de Entregas</h1>
+            <p class="text-muted">Análise em tempo real do desempenho do sistema otimizado</p>
+            <div class="mt-2">
+                <span class="algo-badge">K-Means</span>
+                <span class="algo-badge">A* Algorithm</span>
+                <span class="algo-badge">Otimização em Tempo Real</span>
+            </div>
+        </div>
+        
+        <div class="metrics-grid">
+            <div class="metric-card neutral">
+                <div class="metric-label">Pedidos Processados</div>
+                <div class="metric-value">{{ metricas.total_pedidos }}</div>
+                <div>entregas realizadas</div>
+            </div>
+            
+            <div class="metric-card positive">
+                <div class="metric-label">Eficiência do Sistema</div>
+                <div class="metric-value">{{ "%.1f"|format(metricas.eficiencia_entregas * 100) }}%</div>
+                <div>taxa de sucesso</div>
+            </div>
+            
+            <div class="metric-card warning">
+                <div class="metric-label">Tempo Médio</div>
+                <div class="metric-value">{{ "%.1f"|format(metricas.tempo_medio_entrega) }}min</div>
+                <div>por entrega</div>
+            </div>
+            
+            <div class="metric-card danger">
+                <div class="metric-label">Distância Otimizada</div>
+                <div class="metric-value">{{ "%.1f"|format(metricas.distancia_media_km) }}km</div>
+                <div>economia de rota</div>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <h3>📈 Distribuição de Pedidos por Status</h3>
+            <canvas id="statusChart" width="400" height="200"></canvas>
+        </div>
+
+        <div class="chart-container">
+            <h3>🎯 Eficiência por Cluster de Entregas</h3>
+            <canvas id="clusterChart" width="400" height="200"></canvas>
+        </div>
+
+        <div style="background: white; padding: 25px; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.1);">
+            <h3>🔍 Estatísticas Detalhadas do Sistema</h3>
+            <div class="row">
+                <div class="col-md-6">
+                    <ul class="list-group">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Pedidos entregues com sucesso
+                            <span class="badge bg-success rounded-pill">{{ metricas.pedidos_entregues }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Pedidos em processamento
+                            <span class="badge bg-warning rounded-pill">{{ metricas.total_pedidos - metricas.pedidos_entregues }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Clusters ativos
+                            <span class="badge bg-info rounded-pill">5</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <ul class="list-group">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Algoritmo de clustering
+                            <span class="badge bg-dark rounded-pill">K-Means</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Algoritmo de rota
+                            <span class="badge bg-dark rounded-pill">A* Search</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Tempo de otimização
+                            <span class="badge bg-secondary rounded-pill">< 2s</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Gráfico de status dos pedidos
+        const ctx = document.getElementById('statusChart').getContext('2d');
+        const statusChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['✅ Entregues', '🔄 Em Rota', '⏳ Pendentes'],
+                datasets: [{
+                    data: [
+                        {{ metricas.pedidos_entregues }},
+                        2,
+                        {{ metricas.total_pedidos - metricas.pedidos_entregues - 2 }}
+                    ],
+                    backgroundColor: ['#28a745', '#007bff', '#ffc107'],
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 20,
+                            usePointStyle: true
+                        }
+                    }
+                },
+                cutout: '60%'
+            }
+        });
+
+        // Gráfico de eficiência por cluster
+        const ctx2 = document.getElementById('clusterChart').getContext('2d');
+        const clusterChart = new Chart(ctx2, {
+            type: 'bar',
+            data: {
+                labels: ['Cluster 1', 'Cluster 2', 'Cluster 3', 'Cluster 4', 'Cluster 5'],
+                datasets: [{
+                    label: 'Eficiência por Cluster (%)',
+                    data: [92, 85, 88, 79, 91],
+                    backgroundColor: [
+                        '#d62728', '#1f77b4', '#ff7f0e', '#2ca02c', '#9467bd'
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

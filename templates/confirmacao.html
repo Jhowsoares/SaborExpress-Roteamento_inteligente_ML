@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+{% block title %}Pedido Confirmado — Sabor Express{% endblock %}
+
+{% block content %}
+
+<main class="confirmation container">
+  <div class="card confirmation-card">
+    <div class="confirmation-header">
+      <h2><span class="material-icons">check_circle</span> Pedido Confirmado</h2>
+      <p>Obrigado! Seu pedido <strong>#{{ pedido.id }}</strong> foi recebido.</p>
+    </div>
+
+    <div class="order-info">
+      <div><strong><span class="material-icons">calendar_today</span> Data:</strong> {{ pedido.data_pedido.strftime('%d/%m/%Y %H:%M') }}</div>
+      <div><strong><span class="material-icons">pending_actions</span> Status:</strong> <span class="badge">{{ pedido.status|title }}</span></div>
+      <div><strong><span class="material-icons">payments</span> Total:</strong> R$ {{ "%.2f"|format(pedido.total) }}</div>
+    </div>
+
+    <div class="order-items mt-3">
+      <h4><span class="material-icons">restaurant</span> Itens</h4>
+      {% for it in pedido.itens %}
+      <div class="order-item">
+        <span>{{ it.quantidade }} x {{ it.produto.nome if it.produto is defined else it.produto['nome'] }}</span>
+        <span>R$ {{ "%.2f"|format(it.preco_unitario * it.quantidade) }}</span>
+      </div>
+      {% endfor %}
+    </div>
+
+    {% if pedido.endereco_entrega %}
+    <div class="delivery-info mt-3">
+      <h4><span class="material-icons">local_shipping</span> Endereço de entrega</h4>
+      <p>{{ pedido.endereco_entrega }}</p>
+    </div>
+    {% endif %}
+
+    {% if pedido.observacoes %}
+    <div class="observacoes mt-2">
+      <h4><span class="material-icons">notes</span> Observações</h4>
+      <p>{{ pedido.observacoes }}</p>
+    </div>
+    {% endif %}
+
+    <div class="actions mt-3">
+      <a href="{{ url_for('main.cardapio') }}" class="btn btn-primary">
+        <span class="material-icons">add_shopping_cart</span> Fazer novo pedido
+      </a>
+      <a href="{{ url_for('main.homepage') }}" class="btn btn-outline">
+        <span class="material-icons">home</span> Voltar à home
+      </a>
+    </div>
+  </div>
+</main>
+
+<style>
+.confirmation {
+  padding: 2rem 0;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.confirmation-card {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.confirmation-header h2 {
+  color: #28a745;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.confirmation-header p {
+  color: #666;
+  font-size: 1.125rem;
+}
+
+.order-info {
+  background: #f8f9fa;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin: 1.5rem 0;
+  text-align: left;
+}
+
+.order-info div {
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.order-info div:last-child {
+  margin-bottom: 0;
+}
+
+.badge {
+  background: #007bff;
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 15px;
+  font-size: 0.875rem;
+}
+
+.order-items h4,
+.delivery-info h4,
+.observacoes h4 {
+  color: #333;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.order-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.order-item:last-child {
+  border-bottom: none;
+}
+
+.delivery-info p,
+.observacoes p {
+  color: #666;
+  line-height: 1.5;
+}
+
+.actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.actions .btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+@media (max-width: 768px) {
+  .confirmation {
+    padding: 1rem;
+  }
+  
+  .confirmation-card {
+    padding: 1.5rem;
+  }
+  
+  .actions {
+    flex-direction: column;
+  }
+  
+  .actions .btn {
+    width: 100%;
+  }
+}
+</style>
+{% endblock %}
+[file content end]

@@ -1,0 +1,41 @@
+{% extends "admin/base.html" %}
+{% block title %}Produtos — Admin{% endblock %}
+{% block page_title %}<span class="material-icons">fastfood</span> Produtos{% endblock %}
+
+{% block header_actions %}
+  <a class="btn btn-primary" href="{{ url_for('admin.admin_produto_novo') }}">
+    <span class="material-icons">add</span> Novo Produto
+  </a>
+{% endblock %}
+
+{% block content %}
+<div class="card">
+  <table class="admin-table">
+    <thead><tr><th>ID</th><th>Nome</th><th>Categoria</th><th>Preço</th><th>Ativo</th><th>Ações</th></tr></thead>
+    <tbody>
+      {% for p in produtos %}
+      <tr>
+        <td>{{ p.id }}</td>
+        <td>{{ p.nome }}</td>
+        <td>{{ p.categoria.nome if p.categoria else '—' }}</td>
+        <td>R$ {{ "%.2f"|format(p.preco) }}</td>
+        <td>{{ 'Yes' if p.ativo else 'No' }}</td>
+        <td>
+          <a class="btn btn-outline" href="{{ url_for('admin.admin_produto_editar', produto_id=p.id) }}">
+            <span class="material-icons">edit</span> Editar
+          </a>
+          <form action="{{ url_for('admin.admin_produto_remover', produto_id=p.id) }}" method="post" style="display:inline;">
+            <button class="btn btn-sm" type="submit">
+              <span class="material-icons">delete</span> Remover
+            </button>
+          </form>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="6" class="muted">Nenhum produto cadastrado.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
+[file content end]

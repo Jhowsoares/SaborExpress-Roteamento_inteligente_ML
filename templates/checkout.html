@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+{% block title %}Checkout — Sabor Express{% endblock %}
+
+{% block content %}
+
+<div class="checkout container">
+  <h2><span class="material-icons">shopping_bag</span> Finalizar Pedido</h2>
+
+  <form action="{{ url_for('main.checkout') }}" method="post" class="checkout-form">
+    <div class="form-row">
+      <label><span class="material-icons">person</span> Nome</label>
+      <input type="text" name="nome" required>
+    </div>
+    <div class="form-row">
+      <label><span class="material-icons">phone</span> Telefone</label>
+      <input type="text" name="telefone" required>
+    </div>
+    <div class="form-row">
+      <label><span class="material-icons">location_on</span> Endereço de entrega</label>
+      <textarea name="endereco" required></textarea>
+    </div>
+
+    <div class="order-summary">
+      <h4><span class="material-icons">receipt</span> Resumo</h4>
+      {% for item in items %}
+      <div class="summary-item">
+        <span>{{ item.quantidade }} x {{ item.produto.nome }}</span>
+        <span>R$ {{ "%.2f"|format(item.subtotal) }}</span>
+      </div>
+      {% endfor %}
+      <div class="summary-row">
+        <span>Subtotal</span>
+        <span>R$ {{ "%.2f"|format(subtotal) }}</span>
+      </div>
+      <div class="summary-row">
+        <span>Taxa de entrega</span>
+        <span>R$ {{ "%.2f"|format(taxa_entrega) }}</span>
+      </div>
+      <div class="summary-row total">
+        <strong>Total</strong>
+        <strong>R$ {{ "%.2f"|format(total) }}</strong>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <label><span class="material-icons">notes</span> Observações (opcional)</label>
+      <textarea name="observacoes"></textarea>
+    </div>
+
+    <button class="btn btn-primary" type="submit">
+      <span class="material-icons">check_circle</span> Confirmar Pedido
+    </button>
+  </form>
+</div>
+
+<style>
+.checkout {
+  padding: 2rem 0;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.checkout h2 {
+  text-align: center;
+  margin-bottom: 2rem;
+  color: #333;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.checkout-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-row label {
+  font-weight: 600;
+  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.form-row input,
+.form-row textarea {
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+}
+
+.form-row input:focus,
+.form-row textarea:focus {
+  outline: none;
+  border-color: #ff6b35;
+  box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+}
+
+.order-summary {
+  background: #f8f9fa;
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.order-summary h4 {
+  margin-bottom: 1rem;
+  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.summary-item,
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.summary-row.total {
+  border-top: 2px solid #dee2e6;
+  border-bottom: none;
+  font-weight: 700;
+  font-size: 1.125rem;
+  margin-top: 0.5rem;
+  padding-top: 1rem;
+}
+
+.btn {
+  padding: 1rem 2rem;
+  font-size: 1.125rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+@media (max-width: 768px) {
+  .checkout {
+    padding: 1rem;
+  }
+}
+</style>
+{% endblock %}

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa de Rotas - Sabor Express</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}"/>
+    <style>
+        #map { 
+            height: 600px; 
+            border-radius: var(--admin-radius); 
+            margin-bottom: 20px; 
+            box-shadow: var(--admin-shadow);
+        }
+        .cluster-centro-icon { font-size: 22px; }
+        .cluster-legend, .cluster-badge {
+            display: inline-block;
+            border-radius: 50%;
+        }
+        .cluster-legend { 
+            width: 20px; 
+            height: 20px; 
+            margin-right: 8px; 
+        }
+        .cluster-badge { 
+            width: 12px; 
+            height: 12px; 
+            margin-right: 8px; 
+        }
+    </style>
+</head>
+<body class="admin-body">
+    {% include 'admin/sidebar.html' %}
+
+    <main class="admin-main">
+        <header class="admin-header">
+            <h1>🗺️ Mapa de Rotas Otimizadas</h1>
+        </header>
+
+        <div class="flash-messages">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+            {% endwith %}
+        </div>
+
+        <div class="roteamento-container">
+            <div class="map-controls card p-3 mb-3">
+                <div class="btn-group">
+                    <button id="btn-show-clusters" class="btn btn-outline btn-sm">📊 Cluster</button>
+                    <button id="btn-show-routes" class="btn btn-outline btn-sm">🚗 Rotas</button>
+                    <button id="btn-reset-view" class="btn btn-outline btn-sm">🔄 Reset</button>
+                </div>
+            </div>
+
+            <div id="map"></div>
+
+            {% if clusters_data %}
+            <div class="row mt-3">
+                {% for cluster in clusters_data %}
+                <div class="col-md-3">
+                    <div class="card p-2 cluster-card mb-2" 
+                         style="border-left:4px solid hsl({{ loop.index*60 }},65%,50%)">
+                        <h6>
+                            <span class="cluster-badge" 
+                                  style="background:hsl({{ loop.index*60 }},65%,50%)"></span>
+                            Cluster {{ cluster.id }}
+                        </h6>
+                        <small>
+                            📦 {{ cluster.pedidos_count }}<br>
+                            🚚 {{ cluster.entregador_nome }}<br>
+                            📍 {{ "%.2f"|format(cluster.raio) }} km
+                        </small>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+    </main>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        window.mapaData = {
+            restaurante: {{ restaurante_data|default({})|tojson }},
+            clusters: {{ clusters_data|default([])|tojson }},
+            rotas: {{ rotas_data|default([])|tojson }}
+        };
+    </script>
+    <script src="{{ url_for('static', filename='js/mapa.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Meu Perfil - Sabor Express{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+    <div class="profile-header">
+        <h1>👤 Meu Perfil</h1>
+        <p>Gerencie suas informações pessoais</p>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <div class="profile-content">
+        <div class="profile-card">
+            <div class="profile-info">
+                <div class="info-group">
+                    <label>Nome de Usuário:</label>
+                    <span>{{ current_user.username }}</span>
+                </div>
+                <div class="info-group">
+                    <label>Email:</label>
+                    <span>{{ current_user.email }}</span>
+                </div>
+                <div class="info-group">
+                    <label>Telefone:</label>
+                    <span>{{ current_user.telefone or 'Não informado' }}</span>
+                </div>
+                <div class="info-group">
+                    <label>Membro desde:</label>
+                    <span>{{ current_user.data_criacao.strftime('%d/%m/%Y') if current_user.data_criacao else 'N/A' }}</span>
+                </div>
+            </div>
+
+            <div class="profile-actions">
+                <a href="{{ url_for('auth.editar_perfil') }}" class="btn btn-primary">
+                    ✏️ Editar Perfil
+                </a>
+                <a href="{{ url_for('auth.alterar_senha') }}" class="btn btn-secondary">
+                    🔒 Alterar Senha
+                </a>
+                <a href="{{ url_for('auth.logout') }}" class="btn btn-outline">
+                    🚪 Sair
+                </a>
+            </div>
+        </div>
+
+        <div class="stats-card">
+            <h3>Estatísticas</h3>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <span class="stat-number">0</span>
+                    <span class="stat-label">Pedidos Realizados</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">R$ 0,00</span>
+                    <span class="stat-label">Total Gasto</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">0</span>
+                    <span class="stat-label">Endereços Salvos</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

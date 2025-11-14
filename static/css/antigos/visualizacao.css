@@ -1,0 +1,16 @@
+/* static/css/visualizacao.css */
+.visualizacao-container { padding:1rem 0; max-width:1300px; margin:0 auto; }
+.visualizacao-header { display:flex; justify-content:space-between; align-items:center; gap:1rem; padding:1rem; border-radius:10px; background: linear-gradient(135deg,#374151,#111827); color:#fff; }
+.header-stats { display:flex; gap:1rem; }
+.stat { text-align:center; }
+.stat-number { font-weight:800; font-size:20px; display:block; }
+.view-selector { margin-top:1rem; display:flex; gap:.6rem; }
+.view-btn { padding:.5rem .9rem; border-radius:8px; background:#f1f5f9; border:none; cursor:pointer; }
+.view-btn.active { background:#10b981; color:white; }
+
+/* Frames area */
+.view-frame { width:100%; height:650px; border-radius:8px; border:1px solid #e5e7eb; overflow:hidden; }
+
+/* Analysis and cards */
+.analise-rapida { margin-top:1rem; padding:1rem; background:white; border-radius:8px; box-shadow: 0 6px 20px rgba(12,20,40,0.04); }
+.heat-card { margin-top:1rem; padding:1rem; background:white; border-radius:8px; }

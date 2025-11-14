@@ -1,0 +1,10 @@
+/* static/css/confirmacao.css */
+.confirmation-main { padding:1.2rem 0; display:flex; justify-content:center; }
+.confirmation-card { width:760px; background:white; border-radius:12px; padding:1.2rem; box-shadow:0 10px 30px rgba(12,20,40,0.06); }
+.confirmation-header { text-align:center; margin-bottom:1rem; }
+.success-icon { font-size:48px; margin-bottom:.4rem; }
+.order-details { display:grid; grid-template-columns: 1fr 1fr; gap:1rem; margin-top:1rem; }
+.detail-section { background:#fafafa; padding:.8rem; border-radius:8px; }
+.detail-row { display:flex; justify-content:space-between; padding:.35rem 0; border-bottom:1px dashed #eee; }
+.confirmation-actions { display:flex; gap:.6rem; justify-content:center; margin-top:1rem; }
+.delivery-estimate { margin-top:1rem; text-align:center; color:#374151; }

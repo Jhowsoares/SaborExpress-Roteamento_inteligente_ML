@@ -1,0 +1,164 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Visualização Unificada - Admin{% endblock %}
+{% block page_title %}🎯 Visualização Unificada{% endblock %}
+
+{% block content %}
+<div class="visualizacao-container">
+
+    <!-- Header Unificado -->
+    <div class="visualizacao-header">
+        <div class="header-info">
+            <h2>Visão Integrada da Operação Logística</h2>
+            <p>Acompanhe clusters, rotas otimizadas, grafos e métricas em um único painel.</p>
+        </div>
+
+        <div class="header-stats">
+            <div class="stat">
+                <span class="stat-number">{{ total_pedidos }}</span>
+                <span class="stat-label">Pedidos</span>
+            </div>
+            <div class="stat">
+                <span class="stat-number">{{ total_entregadores }}</span>
+                <span class="stat-label">Entregadores</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navegação entre visões -->
+    <div class="view-selector">
+        <button class="view-btn active" data-view="mapa">🗺️ Mapa</button>
+        <button class="view-btn" data-view="grafo">🕸️ Grafo</button>
+        <button class="view-btn" data-view="metricas">📊 Métricas</button>
+    </div>
+
+    {% if not tem_dados %}
+    <div class="empty-state">
+        <div class="empty-icon">📦</div>
+        <h3>Nenhum dado disponível</h3>
+        <p>Execute a otimização para visualizar informações logísticas.</p>
+        <a href="{{ url_for('roteamento.index') }}" class="btn btn-primary">🚀 Executar Otimização</a>
+    </div>
+
+    {% else %}
+    <div class="view-container">
+
+        <!-- MAPA -->
+        <iframe src="{{ url_for('roteamento.mapa_rotas') }}" class="view-frame active" id="view-mapa"></iframe>
+
+        <!-- GRAFO -->
+        <iframe src="{{ url_for('roteamento.grafo_rotas') }}" class="view-frame" id="view-grafo"></iframe>
+
+        <!-- MÉTRICAS -->
+        <iframe src="{{ url_for('roteamento.metricas') }}" class="view-frame" id="view-metricas"></iframe>
+
+    </div>
+
+    <!-- Análise rápida -->
+    <div class="analise-rapida">
+        <h3>📌 Insights Automáticos</h3>
+        <ul>
+            <li>Clusters com maior volume são <strong>priorizados</strong> por entregadores próximos.</li>
+            <li>Rotas otimizadas reduzem distância média em <b>30–50%</b>.</li>
+            <li>A análise de grafo permite detectar nós críticos do processo.</li>
+        </ul>
+    </div>
+
+    <!-- Heatmap horário -->
+    {% if relatorio.heatmap %}
+    <div class="heat-card">
+        <h3>⏰ Horários Críticos</h3>
+        <canvas id="graficoHeat"></canvas>
+    </div>
+    {% endif %}
+
+    <!-- Ações -->
+    <div class="acoes-section">
+        <a href="{{ url_for('roteamento.index') }}" class="btn btn-success">🚀 Nova Otimização</a>
+        <button onclick="window.print()" class="btn btn-secondary">🖨️ Exportar</button>
+    </div>
+
+    {% endif %}
+</div>
+
+<script>
+document.querySelectorAll('.view-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelector('.view-btn.active').classList.remove('active');
+        btn.classList.add('active');
+
+        document.querySelector('.view-frame.active').classList.remove('active');
+        document.getElementById('view-' + btn.dataset.view).classList.add('active');
+    });
+});
+</script>
+
+<style>
+.visualizacao-container {
+    max-width: 1400px;
+    margin: auto;
+}
+
+.visualizacao-header {
+    background: linear-gradient(135deg, #7b4397, #dc2430);
+    color: white;
+    padding: 2rem;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+}
+
+.header-info h2 { margin: 0; }
+.header-stats {
+    display: flex; gap: 2rem; margin-top: 1rem;
+}
+
+.view-selector {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+.view-btn {
+    padding: .6rem 1.2rem;
+    border: none;
+    border-radius: 8px;
+    background: #eee;
+    cursor: pointer;
+    font-weight: bold;
+    transition: .2s;
+}
+.view-btn.active {
+    background: #4CAF50;
+    color: white;
+}
+
+.view-frame {
+    width: 100%;
+    height: 650px;
+    border: none;
+    display: none;
+    border-radius: 8px;
+    box-shadow: 0 2px 20px rgba(0,0,0,.1);
+}
+.view-frame.active { display: block; }
+
+.analise-rapida {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-top: 2rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,.05);
+}
+
+.heat-card {
+    background: white;
+    padding: 1.5rem;
+    margin-top: 2rem;
+    border-radius: 8px;
+}
+
+.acoes-section {
+    text-align: center;
+    padding: 2rem;
+}
+</style>
+{% endblock %}

@@ -1,0 +1,425 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Roteamento Inteligente - Admin{% endblock %}
+{% block page_title %}<span class="material-icons">route</span> Roteamento Inteligente{% endblock %}
+
+{% block content %}
+<div class="roteamento-container">
+  <!-- Status Rápido -->
+  <div class="status-grid">
+    <div class="status-card">
+      <div class="status-icon"><span class="material-icons">inventory_2</span></div>
+      <div class="status-info">
+        <h3>{{ pedidos_pendentes|length }}</h3>
+        <p>Pedidos Pendentes</p>
+      </div>
+    </div>
+
+    <div class="status-card">
+      <div class="status-icon"><span class="material-icons">local_shipping</span></div>
+      <div class="status-info">
+        <h3>{{ entregadores_disponiveis|length }}</h3>
+        <p>Entregadores Disponíveis</p>
+      </div>
+    </div>
+
+    <div class="status-card">
+      <div class="status-icon"><span class="material-icons">schedule</span></div>
+      <div class="status-info">
+        <h3>{{ ultima_otimizacao }}</h3>
+        <p>Última Otimização</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ações Rápidas - ATUALIZADO COM LIMPEZA -->
+  <div class="acoes-rapidas">
+    <h3><span class="material-icons">flash_on</span> Ações Rápidas</h3>
+    <div class="acoes-grid">
+      <!-- BOTÃO SIMULAR PEDIDOS COM MESMO ESTILO DOS OUTROS -->
+      <form action="{{ url_for('roteamento.simular_pedidos') }}" method="POST" class="acao-form">
+        <input type="hidden" name="quantidade" value="5">
+        <button type="submit" class="acao-card">
+          <span class="acao-icon"><span class="material-icons">shopping_cart</span></span>
+          <span class="acao-text">Simular 5 Pedidos</span>
+          <small>Criar pedidos de teste</small>
+        </button>
+      </form>
+
+      <a href="{{ url_for('main.inicializar_dados') }}" class="acao-card">
+        <span class="acao-icon"><span class="material-icons">database</span></span>
+        <span class="acao-text">Inicializar Dados</span>
+        <small>Localizações + Entregadores</small>
+      </a>
+
+      <a href="{{ url_for('roteamento.metricas_dashboard') }}" class="acao-card">
+        <span class="acao-icon"><span class="material-icons">analytics</span></span>
+        <span class="acao-text">Ver Métricas</span>
+        <small>Comparação de eficiência</small>
+      </a>
+
+      <a href="{{ url_for('admin.admin_pedidos') }}" class="acao-card">
+        <span class="acao-icon"><span class="material-icons">list_alt</span></span>
+        <span class="acao-text">Ver Pedidos</span>
+        <small>Gerenciar todos os pedidos</small>
+      </a>
+
+      <a href="{{ url_for('roteamento.grafo_interativo') }}" class="acao-card">
+        <span class="acao-icon"><span class="material-icons">account_tree</span></span>
+        <span class="acao-text">Grafo Interativo</span>
+        <small>Visualização avançada</small>
+      </a>
+    </div>
+  </div>
+
+  <!-- NOVA SEÇÃO: Limpeza de Dados -->
+  <div class="limpeza-section">
+    <h3><span class="material-icons">cleaning_services</span> Limpeza de Dados</h3>
+    <div class="limpeza-grid">
+      <form action="{{ url_for('roteamento.limpar_pedidos_pendentes') }}" method="POST" class="limpeza-form">
+        <button type="submit" class="btn btn-warning btn-limpeza" onclick="return confirm('Tem certeza que deseja limpar TODOS os pedidos pendentes?')">
+          <span class="limpeza-icon"><span class="material-icons">delete_sweep</span></span>
+          <span class="limpeza-text">Limpar Pedidos Pendentes</span>
+          <small>Remove {{ pedidos_pendentes|length }} pedidos em espera</small>
+        </button>
+      </form>
+
+      <form action="{{ url_for('roteamento.limpar_pedidos_testes') }}" method="POST" class="limpeza-form">
+        <button type="submit" class="btn btn-warning btn-limpeza" onclick="return confirm('Deseja remover apenas os pedidos de teste?')">
+          <span class="limpeza-icon"><span class="material-icons">science</span></span>
+          <span class="limpeza-text">Limpar Pedidos de Teste</span>
+          <small>Remove pedidos simulados</small>
+        </button>
+      </form>
+
+      <form action="{{ url_for('roteamento.limpar_pedidos') }}" method="POST" class="limpeza-form">
+        <button type="submit" class="btn btn-danger btn-limpeza" onclick="return confirm('⚠️ ATENÇÃO: Isso removerá TODOS os pedidos do sistema. Tem certeza?')">
+          <span class="limpeza-icon"><span class="material-icons">warning</span></span>
+          <span class="limpeza-text">Limpar TODOS os Pedidos</span>
+          <small>Limpeza completa do sistema</small>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Otimização K-Means + A* -->
+  <div class="algoritmo-section">
+    <h3><span class="material-icons">rocket_launch</span> Otimização Inteligente (K-Means + A*)</h3>
+    <div class="algoritmo-card">
+      <p><strong>Roteamento A*</strong> integrado para otimizar a sequência de entregas dentro de cada cluster.</p>
+
+      <form action="{{ url_for('roteamento.otimizar_rotas_completas') }}" method="POST" class="algoritmo-form">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="num_clusters"><span class="material-icons">category</span> Número de Clusters:</label>
+            <input type="number" name="num_clusters" id="num_clusters" value="3" min="1" max="10" required>
+            <small>Grupos de entregas por proximidade</small>
+          </div>
+
+          <div class="form-group">
+            <label for="max_entregas"><span class="material-icons">local_shipping</span> Máx. Entregas por Rota:</label>
+            <input type="number" name="max_entregas" id="max_entregas" value="5" min="1" max="15" required>
+            <small>Baseado na capacidade dos veículos</small>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-success btn-lg">
+          <span class="material-icons">rocket_launch</span> Executar Otimização Completa
+        </button>
+        <div class="form-features">
+          <small>✅ K-Means + ✅ A* + ✅ Atribuição Inteligente</small>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Pedidos Pendentes -->
+  <div class="pedidos-section">
+    <h3><span class="material-icons">inventory_2</span> Pedidos Pendentes</h3>
+    {% if pedidos_pendentes %}
+    <div class="pedidos-table">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Total</th>
+            <th>Endereço</th>
+            <th>Data</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for pedido in pedidos_pendentes %}
+          <tr>
+            <td>#{{ pedido.id }}</td>
+            <td>R$ {{ "%.2f"|format(pedido.total) }}</td>
+            <td>{{ pedido.endereco_entrega[:50] }}{% if pedido.endereco_entrega|length > 50 %}...{% endif %}</td>
+            <td>{{ pedido.data_pedido.strftime('%d/%m/%Y %H:%M') }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <p>Nenhum pedido pendente encontrado.</p>
+      <a href="{{ url_for('roteamento.simular_pedidos') }}" class="btn btn-primary">
+        <span class="material-icons">add</span> Simular Pedidos de Teste
+      </a>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<style>
+  .roteamento-container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .status-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .status-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    border-left: 4px solid #28a745;
+  }
+
+  .status-icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .status-icon .material-icons {
+    font-size: 2rem;
+    color: #28a745;
+  }
+
+  .status-info h3 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: #28a745;
+  }
+
+  .status-info p {
+    margin: 0;
+    color: #6c757d;
+  }
+
+  /* NOVO ESTILO PARA LIMPEZA */
+  .limpeza-section {
+    margin-bottom: 2rem;
+  }
+
+  .limpeza-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+  }
+
+  .limpeza-form {
+    display: contents;
+  }
+
+  .btn-limpeza {
+    width: 100%;
+    height: 100%;
+    padding: 1.5rem;
+    border: none;
+    border-radius: 8px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+  }
+
+  .btn-limpeza:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  }
+
+  .limpeza-icon {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .limpeza-icon .material-icons {
+    font-size: 1.5rem;
+  }
+
+  .limpeza-text {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+  }
+
+  .btn-limpeza small {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.8rem;
+  }
+
+  .btn-warning {
+    background: linear-gradient(135deg, #ffc107, #e0a800);
+    color: white;
+  }
+
+  .btn-danger {
+    background: linear-gradient(135deg, #dc3545, #c82333);
+    color: white;
+  }
+
+  .algoritmo-section {
+    margin-bottom: 2rem;
+  }
+
+  .algoritmo-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    border-left: 4px solid #007bff;
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .form-group label {
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+  }
+
+  .form-group input {
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+
+  .form-group small {
+    margin-top: 0.25rem;
+    color: #6c757d;
+    font-size: 0.8rem;
+  }
+
+  .form-features {
+    margin-top: 0.5rem;
+    text-align: center;
+  }
+
+  .acoes-rapidas {
+    margin-bottom: 2rem;
+  }
+
+  .acoes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+  }
+
+  .acao-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.2s;
+    text-align: center;
+  }
+
+  .acao-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  }
+
+  .acao-icon {
+    font-size: 1.5rem;
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+
+  .acao-icon .material-icons {
+    font-size: 1.5rem;
+  }
+
+  .acao-text {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+  }
+
+  .acao-card small {
+    color: #6c757d;
+    font-size: 0.8rem;
+  }
+
+  .pedidos-table {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+
+  .pedidos-table table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .pedidos-table th,
+  .pedidos-table td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+  }
+
+  .pedidos-table th {
+    background: #f8f9fa;
+    font-weight: 600;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 3rem;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+
+  @media (max-width: 768px) {
+    .form-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .status-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .acoes-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .limpeza-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+{% endblock %}
+[file content end]
