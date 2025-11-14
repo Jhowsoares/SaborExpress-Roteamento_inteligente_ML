@@ -124,6 +124,8 @@ pip install -r requirements.txt
 python app.py
 ```
 
+## 🔏usuário/Senha para o portal admin: **admin**
+
 Acesse **http://localhost:5000/admin** no navegador.
 
 ---
