@@ -165,18 +165,27 @@ py app.py
 
 ### 📸 Exemplo de execução
 
-1. Acesse a guia de "**Entrar**" e clique em "**Acessar Painel Admin**" no formulário de login.
-![Login](\static\img\github\login.png)
-2. Faça login como Administrador (user: admin / senha: admin) e clique em "**Entrar como admin**".
-![LoginAdmin](\static\img\github\loginAdmin.png)
-3. Clique em "**Ir para Rotemento** ou acesse a aba "**Rotemento**"".
-![homeAdmin](\static\img\github\home.png)
-4. Clica em "**Inicializar dados**, depois em "**Simular Pedidos** e por fim clique em ""\*Executar Otimização Completa (K-Means + A\*_)_.
-![otimizacao](\static\img\github\otimizacao.png)
-5. Após a otmização, o sistema gera os clusters e exibe o grafo das rotas.
-![resultadoOtimizacao](\static\img\github\resultadoOtimizacao.png)
-6. Após a otmização, para visualizar o grafo das rotas, acesse "**Grafo Interativo**".
-![grafo](\static\img\github\grafo.png)
+### 1. Acesse a guia de "**Entrar**" e clique em "**Acessar Painel Admin**" no formulário de login.
+
+![Login](/static/img/github/login.png)
+
+### 2. Faça login como Administrador (user: admin / senha: admin) e clique em "**Entrar como admin**".
+
+![LoginAdmin](/static/img/github/loginAdmin.png)
+
+### 3. Clique em "**Ir para Rotemento** ou acesse a aba "**Rotemento**"".
+
+![homeAdmin](/static/img/github/home.png)
+
+### 4. Clica em "**Inicializar dados**, depois em "**Simular Pedidos** e por fim clique em **Executar Otimização Completa** (K-Means + A\*_)_.
+
+![otimizacao](/static/img/github/otimizacao.png)
+### 5. Após a otmização, o sistema gera os clusters e exibe o grafo das rotas.
+![resultadoOtimizacao](/static/img/github/resultadoOtimizacao.png)
+
+### 6. Após a otmização, para visualizar o grafo das rotas, acesse "**Grafo Interativo**".
+
+![grafo](/static/img/github/image.png)
 
 ---
 
