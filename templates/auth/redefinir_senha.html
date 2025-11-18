@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+{% block title %}Redefinir Senha - Sabor Express{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h1><span class="material-icons">lock_reset</span> Nova Senha</h1>
+            <p>Crie uma nova senha para sua conta</p>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        <div class="d-flex align-items-center">
+                            {% if category == 'success' %}
+                            <span class="material-icons me-2">check_circle</span>
+                            {% elif category == 'danger' or category == 'error' %}
+                            <span class="material-icons me-2">error</span>
+                            {% else %}
+                            <span class="material-icons me-2">info</span>
+                            {% endif %}
+                            <span>{{ message }}</span>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="post" action="{{ url_for('auth.redefinir_senha', token=token) }}" class="auth-form">
+            <div class="form-group">
+                <label for="nova_senha">
+                    <span class="material-icons">lock_outline</span> Nova Senha
+                </label>
+                <input type="password" class="form-control" id="nova_senha" name="nova_senha" required 
+                       placeholder="Mínimo 6 caracteres">
+                <div class="password-strength mt-1">
+                    <div class="strength-bar">
+                        <div class="strength-fill" id="strength-fill"></div>
+                    </div>
+                    <small class="strength-text" id="strength-text">Força da senha</small>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="confirmar_senha">
+                    <span class="material-icons">lock_reset</span> Confirmar Nova Senha
+                </label>
+                <input type="password" class="form-control" id="confirmar_senha" name="confirmar_senha" required 
+                       placeholder="Digite a nova senha novamente">
+                <div class="password-match mt-1">
+                    <small id="password-match-text"></small>
+                </div>
+            </div>
+
+            <div class="auth-actions">
+                <button type="submit" class="btn btn-success" id="submit-btn">
+                    <span class="material-icons">check_circle</span> Redefinir Senha
+                </button>
+                <a href="{{ url_for('auth.login') }}" class="btn btn-outline">
+                    <span class="material-icons">arrow_back</span> Voltar ao Login
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Use o mesmo CSS do alterar_senha.html -->
+<style>
+/* Mesmo CSS do alterar_senha.html anterior */
+.auth-container {
+    max-width: 480px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.auth-card {
+    background: white;
+    padding: 2.5rem;
+    border-radius: 16px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+}
+
+/* ... resto do CSS igual ao alterar_senha.html ... */
+</style>
+
+<script>
+// Mesmo JavaScript do alterar_senha.html para validação de senha
+document.addEventListener('DOMContentLoaded', function() {
+    const novaSenhaInput = document.getElementById('nova_senha');
+    const confirmarSenhaInput = document.getElementById('confirmar_senha');
+    const strengthFill = document.getElementById('strength-fill');
+    const strengthText = document.getElementById('strength-text');
+    const passwordMatchText = document.getElementById('password-match-text');
+    const passwordStrength = document.querySelector('.password-strength');
+
+    // Mostrar indicador de força da senha
+    novaSenhaInput.addEventListener('focus', function() {
+        passwordStrength.style.display = 'block';
+    });
+
+    // Verificar força da senha
+    novaSenhaInput.addEventListener('input', function() {
+        const password = this.value;
+        let strength = 0;
+        let color = '#dc3545';
+        let text = 'Fraca';
+
+        if (password.length >= 6) strength += 25;
+        if (password.match(/[a-z]/) && password.match(/[A-Z]/)) strength += 25;
+        if (password.match(/\d/)) strength += 25;
+        if (password.match(/[^a-zA-Z\d]/)) strength += 25;
+
+        if (strength >= 75) {
+            color = '#28a745';
+            text = 'Forte';
+        } else if (strength >= 50) {
+            color = '#ffc107';
+            text = 'Média';
+        } else if (strength >= 25) {
+            color = '#fd7e14';
+            text = 'Regular';
+        }
+
+        strengthFill.style.width = strength + '%';
+        strengthFill.style.background = color;
+        strengthText.textContent = text;
+        strengthText.style.color = color;
+    });
+
+    // Verificar se as senhas coincidem
+    function checkPasswordMatch() {
+        const password = novaSenhaInput.value;
+        const confirmPassword = confirmarSenhaInput.value;
+
+        if (confirmPassword === '') {
+            passwordMatchText.textContent = '';
+            passwordMatchText.style.color = '';
+        } else if (password === confirmPassword) {
+            passwordMatchText.textContent = '✓ Senhas coincidem';
+            passwordMatchText.style.color = '#28a745';
+        } else {
+            passwordMatchText.textContent = '✗ Senhas não coincidem';
+            passwordMatchText.style.color = '#dc3545';
+        }
+    }
+
+    confirmarSenhaInput.addEventListener('input', checkPasswordMatch);
+    novaSenhaInput.addEventListener('input', checkPasswordMatch);
+});
+</script>
+{% endblock %}

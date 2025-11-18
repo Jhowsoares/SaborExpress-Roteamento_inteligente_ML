@@ -1,4 +1,3 @@
-# models.py - VERSÃO SIMPLIFICADA E ORGANIZADA
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from datetime import datetime

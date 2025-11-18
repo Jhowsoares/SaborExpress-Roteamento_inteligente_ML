@@ -5,53 +5,106 @@
 <div class="auth-container">
     <div class="auth-card">
         <div class="auth-header">
-            <h1>📝 Criar Conta</h1>
+            <h1><span class="material-icons">person_add</span> Criar Conta</h1>
             <p>Junte-se ao Sabor Express</p>
         </div>
 
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
-                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                    <div class="alert alert-{{ category }}">
+                        <div class="d-flex align-items-center">
+                            {% if category == 'success' %}
+                            <span class="material-icons me-2">check_circle</span>
+                            {% elif category == 'danger' or category == 'error' %}
+                            <span class="material-icons me-2">error</span>
+                            {% else %}
+                            <span class="material-icons me-2">info</span>
+                            {% endif %}
+                            <span>{{ message }}</span>
+                        </div>
+                    </div>
                 {% endfor %}
             {% endif %}
         {% endwith %}
 
         <form method="post" action="{{ url_for('auth.register') }}" class="auth-form">
             <div class="form-group">
-                <label for="username">Nome de usuário</label>
-                <input type="text" class="form-control" id="username" name="username" required value="{{ request.form.username or '' }}">
+                <label for="username">
+                    <span class="material-icons">badge</span> Nome de usuário
+                </label>
+                <input type="text" class="form-control" id="username" name="username" required value="{{ request.form.username or '' }}" placeholder="Seu nome de usuário">
             </div>
 
             <div class="form-group">
-                <label for="email">E-mail</label>
-                <input type="email" class="form-control" id="email" name="email" required value="{{ request.form.email or '' }}">
+                <label for="email">
+                    <span class="material-icons">email</span> E-mail
+                </label>
+                <input type="email" class="form-control" id="email" name="email" required value="{{ request.form.email or '' }}" placeholder="seu@email.com">
             </div>
 
             <div class="form-group">
-                <label for="telefone">Telefone (opcional)</label>
-                <input type="text" class="form-control" id="telefone" name="telefone" value="{{ request.form.telefone or '' }}">
+                <label for="telefone">
+                    <span class="material-icons">phone</span> Telefone (opcional)
+                </label>
+                <input type="text" class="form-control" id="telefone" name="telefone" value="{{ request.form.telefone or '' }}" placeholder="(11) 99999-9999">
             </div>
 
             <div class="form-group">
-                <label for="password">Senha</label>
-                <input type="password" class="form-control" id="password" name="password" required>
+                <label for="password">
+                    <span class="material-icons">lock</span> Senha
+                </label>
+                <input type="password" class="form-control" id="password" name="password" required placeholder="Mínimo 6 caracteres">
             </div>
 
             <div class="form-group">
-                <label for="confirm_password">Confirmar senha</label>
-                <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                <label for="password2">
+                    <span class="material-icons">lock_reset</span> Confirmar senha
+                </label>
+                <input type="password" class="form-control" id="password2" name="password2" required placeholder="Digite a senha novamente">
             </div>
 
-            <div class="form-text">
-                A senha deve ter pelo menos 6 caracteres. O cadastro pode precisar de aprovação do administrador.
+            <div class="form-info">
+                <div class="d-flex align-items-start">
+                    <span class="material-icons me-2" style="color: #6c757d; font-size: 16px; margin-top: 2px;">info</span>
+                    <small class="text-muted">
+                        A senha deve ter pelo menos 6 caracteres.
+                    </small>
+                </div>
             </div>
 
             <div class="auth-actions">
-                <button type="submit" class="btn btn-success">Criar conta</button>
-                <a href="{{ url_for('auth.login') }}" class="btn btn-outline">Voltar ao login</a>
+                <button type="submit" class="btn btn-success">
+                    <span class="material-icons">check_circle</span> Criar conta
+                </button>
+                <a href="{{ url_for('auth.login') }}" class="btn btn-outline">
+                    <span class="material-icons">arrow_back</span> Voltar ao login
+                </a>
             </div>
         </form>
+
+        <div class="auth-footer">
+            <p>Já tem uma conta? <a href="{{ url_for('auth.login') }}">Faça login aqui</a></p>
+        </div>
     </div>
 </div>
+
+<!-- O CSS pode ser o mesmo do register anterior que já adaptamos -->
+<style>
+/* Use o mesmo CSS do register.html anterior que já adaptamos */
+.auth-container {
+    max-width: 480px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.auth-card {
+    background: white;
+    padding: 2.5rem;
+    border-radius: 16px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+}
+
+/* ... resto do CSS igual ao register.html anterior ... */
+</style>
 {% endblock %}

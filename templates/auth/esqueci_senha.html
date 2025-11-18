@@ -1,0 +1,278 @@
+{% extends "base.html" %}
+{% block title %}Recuperar Senha - Sabor Express{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h1><span class="material-icons">lock_reset</span> Recuperar Senha</h1>
+            <p>Vamos te ajudar a recuperar o acesso</p>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        <div class="d-flex align-items-center">
+                            {% if category == 'success' %}
+                            <span class="material-icons me-2">check_circle</span>
+                            {% elif category == 'danger' or category == 'error' %}
+                            <span class="material-icons me-2">error</span>
+                            {% else %}
+                            <span class="material-icons me-2">info</span>
+                            {% endif %}
+                            <span>{{ message }}</span>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="post" action="{{ url_for('auth.esqueci_senha') }}" class="auth-form">
+            <div class="form-group">
+                <label for="identifier">
+                    <span class="material-icons">person</span> E-mail ou Nome de Usuário
+                </label>
+                <input type="text" class="form-control" id="identifier" name="identifier" required 
+                       value="{{ request.form.identifier or '' }}" 
+                       placeholder="Digite seu e-mail ou nome de usuário">
+                <small class="form-text">
+                    Digite o e-mail ou nome de usuário associado à sua conta.
+                </small>
+            </div>
+
+            <div class="recovery-info">
+                <div class="d-flex align-items-start">
+                    <span class="material-icons me-2" style="color: #1976d2; font-size: 18px; margin-top: 2px;">info</span>
+                    <div>
+                        <strong>Como funciona:</strong>
+                        <ul class="mt-2 mb-0" style="padding-left: 1.5rem;">
+                            <li>Enviaremos um link de recuperação para o e-mail cadastrado</li>
+                            <li>O link será válido por 24 horas</li>
+                            <li>Verifique sua pasta de spam se não encontrar o e-mail</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="auth-actions">
+                <button type="submit" class="btn btn-primary">
+                    <span class="material-icons">send</span> Enviar Link de Recuperação
+                </button>
+                <a href="{{ url_for('auth.login') }}" class="btn btn-outline">
+                    <span class="material-icons">arrow_back</span> Voltar ao Login
+                </a>
+            </div>
+        </form>
+
+        <div class="auth-footer">
+            <p>Lembrou sua senha? <a href="{{ url_for('auth.login') }}">Faça login aqui</a></p>
+            <p>Não tem uma conta? <a href="{{ url_for('auth.register') }}">Crie uma conta</a></p>
+        </div>
+    </div>
+</div>
+
+<style>
+.auth-container {
+    max-width: 500px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.auth-card {
+    background: white;
+    padding: 2.5rem;
+    border-radius: 16px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+}
+
+.auth-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.auth-header h1 {
+    color: #333;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.auth-header p {
+    color: #666;
+    margin: 0;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #1976d2;
+    box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.1);
+}
+
+.form-text {
+    color: #6c757d;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+    display: block;
+}
+
+/* Recovery Info */
+.recovery-info {
+    background: #f0f9ff;
+    border: 1px solid #bae6fd;
+    border-radius: 8px;
+    padding: 1.25rem;
+    margin: 1.5rem 0;
+}
+
+.recovery-info strong {
+    color: #0369a1;
+}
+
+.recovery-info ul {
+    color: #475569;
+    font-size: 0.9rem;
+}
+
+.recovery-info li {
+    margin-bottom: 0.25rem;
+}
+
+/* Auth Actions */
+.auth-actions {
+    display: flex;
+    gap: 0.75rem;
+    margin: 2rem 0;
+}
+
+.btn {
+    flex: 1;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    text-align: center;
+}
+
+.btn-primary {
+    background: #1976d2;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #1565c0;
+}
+
+.btn-outline {
+    background: transparent;
+    border: 2px solid #6c757d;
+    color: #6c757d;
+}
+
+.btn-outline:hover {
+    background: #6c757d;
+    color: white;
+}
+
+/* Auth Footer */
+.auth-footer {
+    text-align: center;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e9ecef;
+}
+
+.auth-footer p {
+    margin: 0.5rem 0;
+    color: #666;
+}
+
+.auth-footer a {
+    color: #1976d2;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.auth-footer a:hover {
+    text-decoration: underline;
+}
+
+/* Alerts */
+.alert {
+    padding: 1rem 1.25rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    border-left: 4px solid;
+}
+
+.alert-success {
+    background: #f0fdf4;
+    border-color: #10b981;
+    color: #166534;
+}
+
+.alert-error, .alert-danger {
+    background: #fef2f2;
+    border-color: #dc3545;
+    color: #991b1b;
+}
+
+.alert-warning {
+    background: #fffbeb;
+    border-color: #f59e0b;
+    color: #92400e;
+}
+
+.alert-info {
+    background: #eff6ff;
+    border-color: #3b82f6;
+    color: #1e40af;
+}
+
+@media (max-width: 480px) {
+    .auth-card {
+        padding: 2rem 1.5rem;
+    }
+    
+    .auth-actions {
+        flex-direction: column;
+    }
+    
+    .recovery-info {
+        padding: 1rem;
+    }
+}
+</style>
+{% endblock %}

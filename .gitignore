@@ -6,3 +6,5 @@ venv/
 # editor
 .vscode/
 .idea/
+.env
+*.env

@@ -225,7 +225,7 @@ class OtimizadorEntregas:
 
         return resultado_cluster, passos_anim_total
 
-    # ---------- funções auxiliares (mantive as suas, com pequenas melhorias) ----------
+    # ---------- funções auxiliares ----------
     def _distancia_entre_pedidos(self, origem, destino, localizacoes_dict: Dict) -> float:
         try:
             locs = self._extract_locs(localizacoes_dict)
@@ -263,7 +263,7 @@ class OtimizadorEntregas:
         for i in range(len(rota) - 1):
             distancia_total += self._distancia_entre_pedidos(rota[i], rota[i+1], localizacoes_dict)
         distancia_total += self._distancia_entre_pedidos(rota[-1], restaurante, localizacoes_dict)
-        return distancia_total * 1000.0  # retornar em metros (compatível com outras partes)
+        return distancia_total * 1000.0  # retornar em metros
 
     def _atribuir_entregadores_inteligente(self, clusters: List[Dict],
                                            entregadores: List[Entregador],

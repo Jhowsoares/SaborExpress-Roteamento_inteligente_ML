@@ -1,22 +1,37 @@
 {% extends "admin/base.html" %}
 
+{% block title %}Grafo Interativo - Admin{% endblock %}
+{% block page_title %}<span class="material-icons">account_tree</span> Visualização do Grafo de Rotas{% endblock %}
+
 {% block content %}
 <div class="container-fluid">
     <div class="row">
         <div class="col-md-9">
-            <h1>🗺️ Visualização do Grafo de Rotas</h1>
-            
             <div class="card">
                 <div class="card-header">
-                    <h5 class="card-title mb-0">Mapa de Rotas Otimizadas</h5>
+                    <h5 class="card-title mb-0">
+                        <span class="material-icons">map</span> Mapa de Rotas Otimizadas
+                    </h5>
                 </div>
                 <div class="card-body text-center">
                     {% if imagem_grafo %}
-                    <img src="{{ imagem_grafo }}" alt="Grafo de Rotas" 
-                         class="img-fluid" style="max-height: 70vh;">
+                    <div class="grafo-container">
+                        <img src="{{ imagem_grafo }}" alt="Grafo de Rotas" 
+                             class="img-fluid grafo-imagem" style="max-height: 70vh;">
+                        <div class="grafo-overlay">
+                            <span class="material-icons">zoom_in</span>
+                            <small>Visualização interativa do grafo de rotas</small>
+                        </div>
+                    </div>
                     {% else %}
                     <div class="alert alert-warning">
-                        Não foi possível gerar a visualização do grafo.
+                        <div class="d-flex align-items-center">
+                            <span class="material-icons me-2">warning</span>
+                            <div>
+                                <strong>Não foi possível gerar a visualização do grafo.</strong>
+                                <p class="mb-0 mt-1">Execute uma otimização primeiro para visualizar o grafo.</p>
+                            </div>
+                        </div>
                     </div>
                     {% endif %}
                 </div>
@@ -24,85 +39,293 @@
         </div>
         
         <div class="col-md-3">
+            <!-- Estatísticas -->
             <div class="card">
                 <div class="card-header">
-                    <h5 class="card-title mb-0">📊 Estatísticas</h5>
+                    <h5 class="card-title mb-0">
+                        <span class="material-icons">analytics</span> Estatísticas
+                    </h5>
                 </div>
                 <div class="card-body">
-                    <div class="mb-3">
-                        <strong>Total de Rotas:</strong> 
-                        <span class="badge bg-primary float-end">{{ clusters|length }}</span>
+                    <div class="stat-item mb-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="stat-label">
+                                <span class="material-icons">route</span> Total de Rotas
+                            </span>
+                            <span class="badge bg-primary">{{ clusters|length }}</span>
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        <strong>Total de Pedidos:</strong> 
-                        <span class="badge bg-success float-end">{{ metricas.total_entregas }}</span>
+                    <div class="stat-item mb-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="stat-label">
+                                <span class="material-icons">inventory_2</span> Total de Pedidos
+                            </span>
+                            <span class="badge bg-success">{{ metricas.total_entregas }}</span>
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        <strong>Distância Total:</strong> 
-                        <span class="badge bg-info float-end">{{ "%.1f"|format(metricas.total_distancia_km) }} km</span>
+                    <div class="stat-item mb-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="stat-label">
+                                <span class="material-icons">straighten</span> Distância Total
+                            </span>
+                            <span class="badge bg-info">{{ "%.1f"|format(metricas.total_distancia_km) }} km</span>
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        <strong>Eficiência:</strong> 
-                        <span class="badge bg-warning float-end">{{ "%.0f"|format(metricas.eficiencia_media * 100) }}%</span>
+                    <div class="stat-item">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="stat-label">
+                                <span class="material-icons">speed</span> Eficiência
+                            </span>
+                            <span class="badge bg-warning">{{ "%.0f"|format(metricas.eficiencia_media * 100) }}%</span>
+                        </div>
                     </div>
                 </div>
             </div>
             
+            <!-- Legenda -->
             <div class="card mt-3">
                 <div class="card-header">
-                    <h5 class="card-title mb-0">🎯 Legenda</h5>
+                    <h5 class="card-title mb-0">
+                        <span class="material-icons">legend_toggle</span> Legenda
+                    </h5>
                 </div>
                 <div class="card-body">
-                    <div class="d-flex align-items-center mb-2">
-                        <div class="legend-color" style="background-color: green; width: 20px; height: 20px; border-radius: 4px; margin-right: 10px;"></div>
-                        <span>Sabor Express (Restaurante)</span>
+                    <div class="legend-item d-flex align-items-center mb-2">
+                        <div class="legend-color restaurante">
+                            <span class="material-icons">restaurant</span>
+                        </div>
+                        <span class="legend-text">Sabor Express (Restaurante)</span>
                     </div>
-                    <div class="d-flex align-items-center mb-2">
-                        <div class="legend-color" style="background-color: #d62728; width: 20px; height: 20px; border-radius: 50%; margin-right: 10px;"></div>
-                        <span>Rota 1 - Entregas</span>
+                    <div class="legend-item d-flex align-items-center mb-2">
+                        <div class="legend-color rota-1">
+                            <span class="material-icons">location_on</span>
+                        </div>
+                        <span class="legend-text">Rota 1 - Entregas</span>
                     </div>
-                    <div class="d-flex align-items-center mb-2">
-                        <div class="legend-color" style="background-color: #1f77b4; width: 20px; height: 20px; border-radius: 50%; margin-right: 10px;"></div>
-                        <span>Rota 2 - Entregas</span>
+                    <div class="legend-item d-flex align-items-center mb-2">
+                        <div class="legend-color rota-2">
+                            <span class="material-icons">location_on</span>
+                        </div>
+                        <span class="legend-text">Rota 2 - Entregas</span>
                     </div>
-                    <div class="d-flex align-items-center mb-2">
-                        <div class="legend-color" style="background-color: #ff7f0e; width: 20px; height: 20px; border-radius: 50%; margin-right: 10px;"></div>
-                        <span>Rota 3 - Entregas</span>
+                    <div class="legend-item d-flex align-items-center mb-2">
+                        <div class="legend-color rota-3">
+                            <span class="material-icons">location_on</span>
+                        </div>
+                        <span class="legend-text">Rota 3 - Entregas</span>
                     </div>
-                    <div class="mt-3">
-                        <small class="text-muted">
-                            <strong>Setas:</strong> Direção das rotas<br>
-                            <strong>Grade:</strong> Representação da cidade
-                        </small>
+                    <div class="legend-info mt-3">
+                        <div class="d-flex align-items-center mb-1">
+                            <span class="material-icons me-2" style="color: #666; font-size: 16px;">arrow_forward</span>
+                            <small class="text-muted">Setas: Direção das rotas</small>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <span class="material-icons me-2" style="color: #666; font-size: 16px;">grid_on</span>
+                            <small class="text-muted">Grade: Representação da cidade</small>
+                        </div>
                     </div>
                 </div>
             </div>
             
-            <div class="mt-3">
-                <a href="{{ url_for('roteamento.index') }}" class="btn btn-secondary w-100">
-                    ← Voltar ao Roteamento
+            <!-- Ações -->
+            <div class="action-buttons mt-3">
+                <a href="{{ url_for('roteamento.index') }}" class="btn btn-secondary w-100 mb-2">
+                    <span class="material-icons">arrow_back</span> Voltar ao Roteamento
                 </a>
-                <a href="{{ url_for('roteamento.grafo_interativo') }}" class="btn btn-primary w-100 mt-2">
-                    🔄 Atualizar Visualização
+                <a href="{{ url_for('roteamento.grafo_interativo') }}" class="btn btn-primary w-100 mb-2">
+                    <span class="material-icons">refresh</span> Atualizar Visualização
                 </a>
+                {% if imagem_grafo %}
+                <button onclick="downloadGrafo()" class="btn btn-outline w-100">
+                    <span class="material-icons">download</span> Exportar Imagem
+                </button>
+                {% endif %}
             </div>
         </div>
     </div>
 </div>
 
 <style>
-.legend-color {
-    border: 1px solid #ddd;
+.grafo-container {
+    position: relative;
+    display: inline-block;
 }
+
+.grafo-imagem {
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e9ecef;
+}
+
+.grafo-overlay {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.grafo-overlay .material-icons {
+    font-size: 16px;
+}
+
 .card {
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     border: none;
-    border-radius: 10px;
+    border-radius: 12px;
+    margin-bottom: 1rem;
 }
+
 .card-header {
-    background: #f8f9fa;
-    border-bottom: 1px solid #eee;
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    border-bottom: 1px solid #dee2e6;
     font-weight: 600;
+    padding: 1rem 1.25rem;
+}
+
+.card-header .card-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #495057;
+}
+
+.card-body {
+    padding: 1.25rem;
+}
+
+.stat-item {
+    padding: 0.5rem 0;
+}
+
+.stat-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+    color: #495057;
+}
+
+.badge {
+    font-size: 0.75rem;
+    padding: 0.35em 0.65em;
+}
+
+.legend-item {
+    padding: 0.25rem 0;
+}
+
+.legend-color {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 12px;
+    color: white;
+    font-size: 18px;
+}
+
+.legend-color.restaurante {
+    background: #28a745;
+    border: 2px solid #1e7e34;
+}
+
+.legend-color.rota-1 {
+    background: #d62728;
+    border: 2px solid #a51c1c;
+}
+
+.legend-color.rota-2 {
+    background: #1f77b4;
+    border: 2px solid #155a8a;
+}
+
+.legend-color.rota-3 {
+    background: #ff7f0e;
+    border: 2px solid #cc6600;
+}
+
+.legend-text {
+    font-size: 0.9rem;
+    color: #495057;
+}
+
+.legend-info {
+    border-top: 1px solid #e9ecef;
+    padding-top: 1rem;
+}
+
+.action-buttons .btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    font-weight: 500;
+}
+
+.alert-warning {
+    border-left: 4px solid #ffc107;
+    background: #fffbf0;
+}
+
+.alert-warning .material-icons {
+    color: #f59e0b;
+}
+
+@media (max-width: 768px) {
+    .col-md-9, .col-md-3 {
+        margin-bottom: 1rem;
+    }
+    
+    .grafo-imagem {
+        max-height: 50vh !important;
+    }
+    
+    .action-buttons .btn {
+        font-size: 0.9rem;
+    }
 }
 </style>
+
+<script>
+function downloadGrafo() {
+    // Criar um link temporário para download da imagem
+    const link = document.createElement('a');
+    link.download = 'grafo-rotas-sabor-express.png';
+    link.href = '{{ imagem_grafo }}';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    // Feedback visual
+    const btn = event.target.closest('button');
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<span class="material-icons">check</span> Imagem Baixada!';
+    btn.disabled = true;
+    
+    setTimeout(() => {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    }, 2000);
+}
+
+// Adicionar tooltips para melhor experiência
+document.addEventListener('DOMContentLoaded', function() {
+    const grafoImg = document.querySelector('.grafo-imagem');
+    if (grafoImg) {
+        grafoImg.addEventListener('click', function() {
+            this.classList.toggle('grafo-zoom');
+        });
+    }
+});
+</script>
 {% endblock %}

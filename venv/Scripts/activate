@@ -38,7 +38,7 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
-VIRTUAL_ENV="C:\Users\jvnso\OneDrive\Área de Trabalho\Nova pasta\hamburgeria\venv"
+VIRTUAL_ENV="C:\Users\jvnso\OneDrive\Área de Trabalho\Nova pasta\hamburgueria_testes\hamburgeria_develop\venv"
 export VIRTUAL_ENV
 
 _OLD_VIRTUAL_PATH="$PATH"
