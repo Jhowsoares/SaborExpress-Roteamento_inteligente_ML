@@ -165,32 +165,18 @@ py app.py
 
 ### 📸 Exemplo de execução
 
-1. Administrador acessa a aba _Roteamento_.
-2. Clica em \*Otimização Completa (K-Means + A\*_)_.
-3. O sistema gera os clusters e exibe o grafo das rotas.
-4. A tela de resultados mostra eficiência e métricas calculadas.
-
----
-
-## 🧰 Como Executar o Projeto
-
-```bash
-# Clone o repositório
-git clone https://github.com/Jhowsoares/rota-inteligente.git
-cd rota-inteligente
-
-# Crie o ambiente virtual
-python -m venv venv
-venv/Scripts/activate  # (Windows)
-
-# Instale dependências
-pip install -r requirements.txt
-
-# Execute o servidor Flask
-python app.py
-```
-
-Acesse **http://localhost:5000/admin** no navegador.
+1. Acesse a guia de "**Entrar**" e clique em "**Acessar Painel Admin**" no formulário de login.
+![Login](\static\img\github\login.png)
+2. Faça login como Administrador (user: admin / senha: admin) e clique em "**Entrar como admin**".
+![LoginAdmin](\static\img\github\loginAdmin.png)
+3. Clique em "**Ir para Rotemento** ou acesse a aba "**Rotemento**"".
+![homeAdmin](\static\img\github\home.png)
+4. Clica em "**Inicializar dados**, depois em "**Simular Pedidos** e por fim clique em ""\*Executar Otimização Completa (K-Means + A\*_)_.
+![otimizacao](\static\img\github\otimizacao.png)
+5. Após a otmização, o sistema gera os clusters e exibe o grafo das rotas.
+![resultadoOtimizacao](\static\img\github\resultadoOtimizacao.png)
+6. Após a otmização, para visualizar o grafo das rotas, acesse "**Grafo Interativo**".
+![grafo](\static\img\github\grafo.png)
 
 ---
 
@@ -198,6 +184,7 @@ Acesse **http://localhost:5000/admin** no navegador.
 
 - 🔄 Adicionar **aprendizado por reforço (Q-Learning)** para autoajuste das rotas.
 - 🗺️ Integração com **APIs reais de geolocalização** (Google Maps).
+- 🧮 melhorar metricas calculadas.
 - 📱 Tornar o painel totalmente adaptado para **uso mobile**.
 - 📊 Criar comparativos automáticos entre execuções.
 
@@ -209,10 +196,3 @@ O projeto **Rota Inteligente — Sabor Express** demonstrou o potencial dos algo
 A combinação de **K-Means + A\*** gerou uma solução prática, eficiente e escalável para otimização de rotas de entrega.
 
 ---
-
-## 📚 Referências
-
-- _Wired — UPS ORION Route Optimization System_
-- _Medium — Optimizing Logistics with AI_
-- _Scikit-Learn Documentation — K-Means_
-- _AIMA — Artificial Intelligence: A Modern Approach_
