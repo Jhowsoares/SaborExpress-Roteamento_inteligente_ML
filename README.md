@@ -1,9 +1,9 @@
 # 🍔 Rota Inteligente — Sabor Express
 
 **Disciplina:** Artificial Intelligence Fundamentals  
-**Instituição:** Universidade Anhanguera  
+**Instituição:** Universidade UniFecaf  
 **Aluno:** Jhonata Viana Soares  
-**Projeto:** Sistema inteligente de otimização de rotas para entregas com IA
+**Projeto:** Sistema inteligente de otimização de rotas para entregas (K-Means + A*), com painel web em Flask.
 
 ---
 
@@ -78,6 +78,12 @@ Dentro de cada cluster, o A* determina a **sequência ideal de entregas**, reduz
 | Visualização | Gráficos e tabelas dinâmicas |
 
 ---
+## Pré-requisitos
+
+- Python 3.10+ (recomendado)
+- Conta Brevo (ou outro provedor SMTP) — opcional para envio real de e-mails
+
+---
 
 ## 📊 Resultados Obtidos
 
@@ -90,6 +96,50 @@ Dentro de cada cluster, o A* determina a **sequência ideal de entregas**, reduz
 **Impacto:**  
 A aplicação do K-Means e A* reduziu o tempo de entrega, melhorou a distribuição de entregadores e automatizou o planejamento logístico.
 
+---
+## Instalação (passo a passo — Windows / PowerShell)
+
+1. Clone:
+```bash
+git clone https://github.com/Jhowsoares/SaborExpress-Roteamento_inteligente_ML.git
+cd SaborExpress-Roteamento_inteligente_ML
+```
+2. Crie e ative virtualenv:
+
+```bash
+py -m venv .venv
+.\.venv\Scripts\Activate.ps1
+```
+3. Instale dependências:
+```bash
+pip install -U pip
+pip install -r requirements.txt
+```
+
+4. Crie .env a partir do exemplo e preencha:
+```bash
+copy .env.example .env
+notepad .env
+# Preencha MAIL_USERNAME / MAIL_PASSWORD (Brevo API key), SECRET_KEY, DATABASE_URI etc.
+```
+5. Inicialize banco e crie tabelas:
+```bash
+py -c "from app import create_app; from models import db; app=create_app(); \
+with app.app_context(): db.create_all(); print('DB initialized')"
+```
+
+6. Teste envio de e-mail (opcional):
+
+- Ajuste o destinatário em test_mail.py e rode:
+```bash
+py test_mail.py
+```
+
+7. Rode a aplicação:
+```bash
+py app.py
+# Acesse http://127.0.0.1:5000
+```
 ---
 
 ## 🧪 Demonstração Prática

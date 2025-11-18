@@ -1,10 +1,33 @@
-# virtual env
+# Byte-compiled / caches
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environments
 venv/
-# python caches
-**/__pycache__/
-**/*.pyc
-# editor
+.venv/
+ENV/
+env/
+
+# Environment variables
+.env
+
+# SQLite DB
+*.db
+instance/
+
+# IDEs / editors
 .vscode/
 .idea/
-.env
-*.env
+*.sublime-project
+*.sublime-workspace
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# distributions/build
+build/
+dist/
+*.egg-info/
