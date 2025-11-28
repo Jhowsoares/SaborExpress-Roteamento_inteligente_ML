@@ -115,7 +115,7 @@ cd SaborExpress-Roteamento_inteligente_ML
 
 ```bash
 py -m venv .venv
-.\.venv\Scripts\Activate.ps1
+.\venv\Scripts\activate
 ```
 
 3. Instale dependências:
