@@ -1,4 +1,4 @@
-# routes/utils.py - UTILS CORRETO PARA API
+# routes/utils.py
 from flask import session, redirect, url_for, flash
 from functools import wraps
 from models import Localizacao, Pedido, Entregador, Rota

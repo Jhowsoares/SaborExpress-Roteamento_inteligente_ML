@@ -1,4 +1,4 @@
-# routes/roteamento.py - VERSÃO SIMPLIFICADA
+
 from flask import Blueprint, render_template, request, flash, redirect, url_for, session
 from models import db, Pedido, Entregador, Localizacao, Rota
 from algoritmos.kmeans import executar_kmeans, salvar_resultado_kmeans, buscar_resultado_kmeans, buscar_ultimo_resultado_kmeans
@@ -9,7 +9,7 @@ from algoritmos.simulador import SimuladorAStarService
 from flask import jsonify
 from typing import Any
 from datetime import datetime
-from models import Rota  # se a tabela existir no seu models.py
+from models import Rota  
 from algoritmos.grafo import construir_grafo, haversine_m
 
 roteamento_bp = Blueprint('roteamento', __name__)
@@ -126,10 +126,10 @@ def api_grafo():
     tudo já vem serializado.
     """
     try:
-        # Pega o último resultado salvo (ou recalcula se preferir)
+     
         resultado = buscar_ultimo_resultado_kmeans()
         if not resultado:
-            # fallback: tente executar uma otimização rápida (opcional) ou retorne demo
+          
             return jsonify({"error": "Nenhuma otimização encontrada", "demo": True}), 404
 
         dados = preparar_dados_grafo(resultado)
@@ -199,7 +199,7 @@ def otimizar_rotas_completas():
         num_clusters = int(request.form.get('num_clusters', 3))
         max_entregas = int(request.form.get('max_entregas', 5))
 
-        print(f"🚀 [DEBUG] Iniciando otimização com {num_clusters} clusters, max {max_entregas} entregas")
+        print(f" [DEBUG] Iniciando otimização com {num_clusters} clusters, max {max_entregas} entregas")
         
         # Buscar dados do banco
         pedidos_pendentes = Pedido.query.filter_by(status='pendente').all()
@@ -209,10 +209,10 @@ def otimizar_rotas_completas():
         try:
             rotas_db = Rota.query.all()
         except Exception:
-            # se tabela Rota não existir, segue com lista vazia (fallback será usado)
+           
             rotas_db = []
 
-        print(f"📦 [DEBUG] {len(pedidos_pendentes)} pedidos, {len(localizacoes)} localizações, {len(entregadores_disponiveis)} entregadores")
+        print(f" [DEBUG] {len(pedidos_pendentes)} pedidos, {len(localizacoes)} localizações, {len(entregadores_disponiveis)} entregadores")
               
         if not pedidos_pendentes:
             flash('Nenhum pedido pendente encontrado para otimização.', 'warning')
@@ -224,17 +224,16 @@ def otimizar_rotas_completas():
         # Verificar restaurante e, se ausente, criar fallback em memória
         restaurante = next((loc for loc in localizacoes if getattr(loc, 'tipo', None) == 'restaurante'), None)
         if not restaurante:
-            print("⚠️ [DEBUG] Restaurante não encontrado nas localizações, usando fallback em memória")
+            print(" [DEBUG] Restaurante não encontrado nas localizações, usando fallback em memória")
             restaurante = Localizacao(
                 nome="Restaurante Sabor Express", 
                 latitude=-23.5505, 
                 longitude=-46.6333, 
                 tipo="restaurante"
             )
-            # garantir que exista uma chave para o restaurante (usar id=1 temporariamente se não conflitar)
+            
             localizacoes_objetos[restaurante.id if hasattr(restaurante, 'id') else 1] = restaurante
 
-        # Construir arestas: preferir rotas do banco; se não houver, construir completo via Haversine
         arestas = []
         if rotas_db:
             for r in rotas_db:
@@ -244,7 +243,7 @@ def otimizar_rotas_completas():
                     'distancia_metros': float(r.distancia_metros)
                 })
         else:
-            print("⚠️ [ROUTER] Nenhuma rota cadastrada — criando grafo completo via Haversine")
+            print(" [ROUTER] Nenhuma rota cadastrada — criando grafo completo via Haversine")
             locs_list = [l for l in localizacoes if hasattr(l, 'id') and hasattr(l, 'latitude') and hasattr(l, 'longitude')]
             for a in locs_list:
                 for b in locs_list:
@@ -256,7 +255,7 @@ def otimizar_rotas_completas():
                         'distancia_metros': float(haversine_m(a.latitude, a.longitude, b.latitude, b.longitude))
                     })
 
-        # construir grafo (adjacency dict) - usar a lista de objetos/arestas
+       
         grafo = construir_grafo(localizacoes, arestas)
 
         # montar container esperado pelo otimizador
@@ -265,7 +264,7 @@ def otimizar_rotas_completas():
             'grafo': grafo
         }
 
-        # executar otimizador (apenas UMA vez)
+        # executar otimizador 
         from algoritmos.otimizador_integrado import OtimizadorEntregas
         otimizador = OtimizadorEntregas()
         resultado = otimizador.otimizar_rotas_completas(
@@ -276,20 +275,20 @@ def otimizar_rotas_completas():
             max_entregas_por_cluster=max_entregas
         )
 
-        print(f"✅ [DEBUG] Otimização concluída: {len(resultado.get('atribuicoes', []))} atribuições")
+        print(f" [DEBUG] Otimização concluída: {len(resultado.get('atribuicoes', []))} atribuições")
         
         # Salvar resultado no repositório (função já existente)
         from algoritmos.kmeans import salvar_resultado_kmeans, buscar_resultado_kmeans
         execucao_id = salvar_resultado_kmeans(resultado)
         
         resultado_salvo = buscar_resultado_kmeans(execucao_id)
-        print(f"💾 [DEBUG] Resultado salvo verificado: {resultado_salvo is not None}")
+        print(f" [DEBUG] Resultado salvo verificado: {resultado_salvo is not None}")
         
         flash(f'Otimização completa realizada! {len(resultado["atribuicoes"])} rotas criadas.', 'success')
         return redirect(url_for('roteamento.resultado_kmeans', execucao_id=execucao_id))
         
     except Exception as e:
-        print(f"❌ [DEBUG] Erro na otimização: {str(e)}")
+        print(f" [DEBUG] Erro na otimização: {str(e)}")
         import traceback
         traceback.print_exc()
         flash(f'Erro na otimização completa: {str(e)}', 'error')
@@ -357,7 +356,7 @@ def resultado_kmeans(execucao_id):
 def simular_pedidos():
     """Simula pedidos REALISTAS para teste do sistema"""
     try:
-        # Buscar localizações de bairros (excluindo o restaurante)
+        # Buscar localizações de bairros 
         localizacoes_bairro = Localizacao.query.filter(
             Localizacao.tipo == 'bairro'
         ).all()
@@ -366,7 +365,7 @@ def simular_pedidos():
             flash('Crie mais localizações de bairros primeiro!', 'warning')
             return redirect(url_for('admin.admin_inicializar_dados_roteamento'))
         
-        print(f"🎯 Simulando pedidos para {len(localizacoes_bairro)} bairros...")
+        print(f" Simulando pedidos para {len(localizacoes_bairro)} bairros...")
         
         # Pedidos mais realistas com endereços específicos
         pedidos_exemplo = [
@@ -404,16 +403,16 @@ def simular_pedidos():
                 db.session.add(pedido)
                 pedidos_criados += 1
             except Exception as e:
-                print(f"⚠️ Erro ao criar pedido: {e}")
+                print(f" Erro ao criar pedido: {e}")
                 continue
         
         db.session.commit()
         flash(f'{pedidos_criados} pedidos REALISTAS simulados criados!', 'success')
-        print(f"✅ {pedidos_criados} pedidos criados com distribuição geográfica realista")
+        print(f" {pedidos_criados} pedidos criados com distribuição geográfica realista")
         
     except Exception as e:
         db.session.rollback()
-        print(f"❌ Erro ao simular pedidos: {str(e)}")
+        print(f" Erro ao simular pedidos: {str(e)}")
         flash(f'Erro ao simular pedidos: {str(e)}', 'danger')
     
     return redirect(url_for('roteamento.index'))
@@ -423,35 +422,35 @@ def simular_pedidos():
 def metricas_dashboard():
     """Dashboard de métricas e comparações"""
 
-    print("🔍 [DEBUG] Acessando /metricas")
+    print(" [DEBUG] Acessando /metricas")
     
     # Buscar última otimização para mostrar
     resultado_kmeans = buscar_ultimo_resultado_kmeans()
     pedidos_pendentes = Pedido.query.filter_by(status='pendente').all()
     entregadores_disponiveis = Entregador.query.filter_by(disponivel=True).all()
     
-    print(f"📊 [DEBUG] Resultado K-Means: {resultado_kmeans is not None}")
-    print(f"📦 [DEBUG] Pedidos pendentes: {len(pedidos_pendentes)}")
-    print(f"🚚 [DEBUG] Entregadores: {len(entregadores_disponiveis)}")
+    print(f" [DEBUG] Resultado K-Means: {resultado_kmeans is not None}")
+    print(f" [DEBUG] Pedidos pendentes: {len(pedidos_pendentes)}")
+    print(f" [DEBUG] Entregadores: {len(entregadores_disponiveis)}")
     
 
     # Se há última otimização, mostrar comparação
     relatorio = None
     if resultado_kmeans and pedidos_pendentes:
         try:
-            print("🔄 [DEBUG] Gerando análise comparativa...")
+            print(" [DEBUG] Gerando análise comparativa...")
             analise = analisador_global.comparar_metodos(
                 pedidos=pedidos_pendentes,
                 entregadores=entregadores_disponiveis,
                 resultado_otimizado=resultado_kmeans
             )
-            print("📈 [DEBUG] Análise gerada, criando relatório...")
+            print(" [DEBUG] Análise gerada, criando relatório...")
             relatorio = analisador_global.gerar_relatorio_detalhado(analise)
-            print("✅ [DEBUG] Relatório criado com sucesso!")
+            print(" [DEBUG] Relatório criado com sucesso!")
 
             relatorio = analisador_global.gerar_relatorio_detalhado(analise)
         except Exception as e:
-            print(f"❌ [DEBUG] Erro ao gerar relatório: {str(e)}")
+            print(f" [DEBUG] Erro ao gerar relatório: {str(e)}")
             flash(f'Erro ao gerar relatório: {str(e)}', 'warning')
     
     return render_template(
@@ -488,7 +487,7 @@ def gerar_relatorio_completo():
         relatorio = analisador_global.gerar_relatorio_detalhado(analise)
 
         # ---------------------------------------------------------------------
-        # 🔥 1️⃣ – Geração de Indicadores Visuais Adicionais
+        # Geração de Indicadores Visuais Adicionais
         # ---------------------------------------------------------------------
 
         # (a) Pontuação global de eficiência (score geral)
@@ -496,13 +495,10 @@ def gerar_relatorio_completo():
         custo_km = relatorio.get("kpi", {}).get("custo_km", 0)
         tempo_medio = relatorio.get("kpi", {}).get("tempo_medio", 0)
 
-        # Fórmula simples para gerar um score 0–100
-        score = min(100, max(0, (eficiencia * 120) - (custo_km * 2) - (tempo_medio * 0.4)))
-        relatorio["kpi_score"] = round(score)
-        relatorio["kpi_emoji"] = "😄" if score > 80 else ("😐" if score > 60 else "😬")
+       
 
         # ---------------------------------------------------------------------
-        # 🔥 2️⃣ – Simulação de “nós congestionados” do grafo (para visual)
+        #  – Simulação de “nós congestionados” do grafo (para visual)
         # ---------------------------------------------------------------------
         relatorio["nos_congestionados"] = [
             {"nome": f"Nó {i}", "carga": randint(4, 12)}
@@ -510,7 +506,7 @@ def gerar_relatorio_completo():
         ]
 
         # ---------------------------------------------------------------------
-        # 🔥 3️⃣ – Dataset para o Heatmap (exemplo genérico)
+        # Dataset para o Heatmap (exemplo genérico)
         # ---------------------------------------------------------------------
         # Geramos bolhas em torno de clusters para simular densidade geográfica
         heatmap_data = []
@@ -534,7 +530,7 @@ def gerar_relatorio_completo():
         relatorio["heatmap_dataset"] = heatmap_data
 
         # ---------------------------------------------------------------------
-        # 🔥 4️⃣ – Destacar vencedor automaticamente
+        # Destacar vencedor automaticamente
         # ---------------------------------------------------------------------
         if "tabela_comparativa" in relatorio:
             melhor = max(relatorio["tabela_comparativa"], key=lambda m: m.get("eficiencia", 0))
@@ -542,7 +538,7 @@ def gerar_relatorio_completo():
                 metodo["vencedor"] = metodo["metodo"] == melhor["metodo"]
 
         # ---------------------------------------------------------------------
-        # 🔥 5️⃣ – Flash + render
+        # Flash + render
         # ---------------------------------------------------------------------
         flash('Relatório comparativo gerado com sucesso!', 'success')
         return render_template(
@@ -567,9 +563,9 @@ def mapa_rotas():
         resultado_kmeans = buscar_ultimo_resultado_kmeans()
         
         # DEBUG: Verificar o que está retornando
-        print(f"🗺️ [DEBUG MAPA] Resultado K-Means encontrado: {resultado_kmeans is not None}")
+        print(f" [DEBUG MAPA] Resultado K-Means encontrado: {resultado_kmeans is not None}")
         if resultado_kmeans:
-            print(f"🗺️ [DEBUG MAPA] Atribuições: {len(resultado_kmeans.get('atribuicoes', []))}")
+            print(f" [DEBUG MAPA] Atribuições: {len(resultado_kmeans.get('atribuicoes', []))}")
         
         if not resultado_kmeans or not resultado_kmeans.get('atribuicoes'):
             flash('Execute uma otimização primeiro para ver o mapa.', 'warning')
@@ -586,7 +582,7 @@ def mapa_rotas():
         )
         
     except Exception as e:
-        print(f"❌ [DEBUG MAPA] Erro: {str(e)}")
+        print(f" [DEBUG MAPA] Erro: {str(e)}")
         flash(f'Erro ao carregar mapa: {str(e)}', 'error')
         return redirect(url_for('roteamento.index'))
 
@@ -607,7 +603,7 @@ def preparar_dados_mapa(resultado):
         clusters_data = []
         atribuicoes = resultado.get('atribuicoes', [])
         
-        print(f"🗺️ [DEBUG MAPA] Processando {len(atribuicoes)} atribuições")
+        print(f" [DEBUG MAPA] Processando {len(atribuicoes)} atribuições")
         
         for i, atribuicao in enumerate(atribuicoes):
             cluster_info = atribuicao.get('cluster_info', {})
@@ -633,7 +629,7 @@ def preparar_dados_mapa(resultado):
                     latitudes.append(float(loc.latitude))
                     longitudes.append(float(loc.longitude))
                 else:
-                    print(f"⚠️ [DEBUG MAPA] Pedido {pedido_id} sem localização")
+                    print(f" [DEBUG MAPA] Pedido {pedido_id} sem localização")
             
             if latitudes and longitudes:
                 centro_lat = sum(latitudes) / len(latitudes)
@@ -659,9 +655,9 @@ def preparar_dados_mapa(resultado):
                     'entregas': entregas  # Já é uma lista de dicionários serializáveis
                 }
                 clusters_data.append(cluster_data)
-                print(f"🗺️ [DEBUG MAPA] Cluster {i+1}: {len(entregas)} entregas, raio {raio:.2f}km")
+                print(f" [DEBUG MAPA] Cluster {i+1}: {len(entregas)} entregas, raio {raio:.2f}km")
             else:
-                print(f"❌ [DEBUG MAPA] Cluster {i+1} sem coordenadas válidas")
+                print(f" [DEBUG MAPA] Cluster {i+1} sem coordenadas válidas")
         
         # Preparar rotas CORRIGIDO - dados serializáveis
         rotas_data = []
@@ -669,7 +665,7 @@ def preparar_dados_mapa(resultado):
             entregador_nome = atribuicao.get('entregador_nome', 'Entregador')
             sequencia = atribuicao.get('pedidos_sequencia', [])
             
-            print(f"🗺️ [DEBUG MAPA] Rota {i+1}: {len(sequencia)} pedidos na sequência")
+            print(f" [DEBUG MAPA] Rota {i+1}: {len(sequencia)} pedidos na sequência")
             
             # Coordenadas da rota (restaurante -> entregas -> restaurante)
             coordenadas_rota = []
@@ -711,7 +707,7 @@ def preparar_dados_mapa(resultado):
             }
             rotas_data.append(rota_data)
         
-        print(f"🗺️ [DEBUG MAPA] Dados preparados: {len(clusters_data)} clusters, {len(rotas_data)} rotas")
+        print(f" [DEBUG MAPA] Dados preparados: {len(clusters_data)} clusters, {len(rotas_data)} rotas")
         
         return {
             'restaurante': dados_restaurante,
@@ -720,7 +716,7 @@ def preparar_dados_mapa(resultado):
         }
         
     except Exception as e:
-        print(f"❌ [DEBUG MAPA] Erro crítico: {str(e)}")
+        print(f" [DEBUG MAPA] Erro crítico: {str(e)}")
         # Fallback: dados mínimos serializáveis
         return {
             'restaurante': {'nome': 'Sabor Express', 'latitude': -23.5505, 'longitude': -46.6333},
@@ -763,10 +759,10 @@ def grafo_rotas():
         # Buscar última otimização
         resultado_kmeans = buscar_ultimo_resultado_kmeans()
         
-        print(f"🕸️ [DEBUG GRAFO] Resultado K-Means encontrado: {resultado_kmeans is not None}")
+        print(f" [DEBUG GRAFO] Resultado K-Means encontrado: {resultado_kmeans is not None}")
         
         if not resultado_kmeans or not resultado_kmeans.get('atribuicoes'):
-            print("🕸️ [DEBUG GRAFO] Nenhuma otimização encontrada, redirecionando para teste")
+            print(" [DEBUG GRAFO] Nenhuma otimização encontrada, redirecionando para teste")
             return redirect(url_for('roteamento.teste_visualizacao'))
         
         # Preparar dados para o grafo
@@ -774,11 +770,11 @@ def grafo_rotas():
         
         # VERIFICAR se os dados estão válidos
         if not dados_grafo.get('nos') or len(dados_grafo.get('nos', [])) <= 1:
-            print("❌ [DEBUG GRAFO] Dados do grafo insuficientes, usando fallback")
+            print(" [DEBUG GRAFO] Dados do grafo insuficientes, usando fallback")
             # Usar dados de fallback
             return redirect(url_for('roteamento.teste_visualizacao'))
         
-        print(f"🕸️ [DEBUG GRAFO] Dados preparados: {len(dados_grafo.get('nos', []))} nós, {len(dados_grafo.get('arestas', []))} arestas")
+        print(f" [DEBUG GRAFO] Dados preparados: {len(dados_grafo.get('nos', []))} nós, {len(dados_grafo.get('arestas', []))} arestas")
         
         return render_template(
             'admin/roteamento/grafo.html',
@@ -790,7 +786,7 @@ def grafo_rotas():
         )
         
     except Exception as e:
-        print(f"❌ [DEBUG GRAFO] Erro: {str(e)}")
+        print(f" [DEBUG GRAFO] Erro: {str(e)}")
         import traceback
         traceback.print_exc()
         flash(f'Erro ao carregar grafo: {str(e)}', 'error')
@@ -798,7 +794,7 @@ def grafo_rotas():
 
 def preparar_dados_grafo_fallback(resultado):
     """Fallback para quando os dados principais falharem"""
-    print("🔄 [DEBUG GRAFO] Usando fallback para dados do grafo")
+    print(" [DEBUG GRAFO] Usando fallback para dados do grafo")
     
     # Dados mínimos para o grafo funcionar
     restaurante = Localizacao.query.get(1)
@@ -1074,7 +1070,7 @@ def visualizacao_unificada():
         resultado_kmeans = buscar_ultimo_resultado_kmeans()
         
         # DEBUG melhorado
-        print(f"🎯 [DEBUG VIZ] Resultado K-Means encontrado: {resultado_kmeans is not None}")
+        print(f" [DEBUG VIZ] Resultado K-Means encontrado: {resultado_kmeans is not None}")
         
         if not resultado_kmeans or not resultado_kmeans.get('atribuicoes'):
             flash('Execute uma otimização primeiro para ver as visualizações.', 'warning')
@@ -1084,7 +1080,7 @@ def visualizacao_unificada():
         localizacoes = Localizacao.query.all()
         localizacoes_dict = {loc.id: loc for loc in localizacoes}
         
-        print(f"🎯 [DEBUG VIZ] Localizações carregadas: {len(localizacoes_dict)}")
+        print(f" [DEBUG VIZ] Localizações carregadas: {len(localizacoes_dict)}")
         
         # Preparar dados para todas as visualizações
         dados_mapa = preparar_dados_mapa(resultado_kmeans)
@@ -1092,12 +1088,12 @@ def visualizacao_unificada():
         dados_comparacao = preparar_dados_comparacao(resultado_kmeans)
         metricas = calcular_metricas_dashboard(resultado_kmeans)
         
-        print(f"🎯 [DEBUG VIZ] Dados preparados - Mapa: {len(dados_mapa.get('clusters', []))} clusters")
-        print(f"🎯 [DEBUG VIZ] Dados preparados - Grafo: {len(dados_grafo.get('nos', []))} nós")
+        print(f" [DEBUG VIZ] Dados preparados - Mapa: {len(dados_mapa.get('clusters', []))} clusters")
+        print(f" [DEBUG VIZ] Dados preparados - Grafo: {len(dados_grafo.get('nos', []))} nós")
         
         # CORREÇÃO FINAL: Verificar serialização antes de renderizar
         if not verificar_serializacao_json(dados_grafo):
-            print("⚠️ [DEBUG VIZ] Dados do grafo não são serializáveis, usando fallback")
+            print(" [DEBUG VIZ] Dados do grafo não são serializáveis, usando fallback")
             dados_grafo = {
                 'restaurante': {'nome': 'Sabor Express', 'latitude': -23.5505, 'longitude': -46.6333},
                 'entregas': [],
@@ -1116,7 +1112,7 @@ def visualizacao_unificada():
         )
         
     except Exception as e:
-        print(f"❌ [DEBUG VIZ] Erro crítico: {str(e)}")
+        print(f" [DEBUG VIZ] Erro crítico: {str(e)}")
         import traceback
         traceback.print_exc()
         flash(f'Erro ao carregar dashboard: {str(e)}', 'error')
@@ -1134,7 +1130,7 @@ def preparar_dados_comparacao(resultado):
     tempo_total = metricas.get('tempo_total_minutos', 45)
     entregas_por_hora = metricas.get('entregas_por_hora', 8)
     
-    print(f"📊 [DEBUG COMPARAÇÃO] Métricas reais: eficiência={eficiencia_media}, distância={total_distancia}, tempo={tempo_total}")
+    print(f" [DEBUG COMPARAÇÃO] Métricas reais: eficiência={eficiencia_media}, distância={total_distancia}, tempo={tempo_total}")
     
     # Dados REALISTAS baseados nas métricas reais
     return {
@@ -1306,7 +1302,7 @@ def grafo_demo():
 def teste_visualizacao():
     """Rota de teste para visualizações com dados de exemplo robustos"""
     try:
-        print("🎯 [DEBUG] Carregando dados de teste para visualização...")
+        print(" [DEBUG] Carregando dados de teste para visualização...")
         
         # Dados de exemplo mais robustos
         dados_exemplo = {
@@ -1447,7 +1443,7 @@ def teste_visualizacao():
         )
         
     except Exception as e:
-        print(f"❌ [DEBUG] Erro no teste de visualização: {str(e)}")
+        print(f" [DEBUG] Erro no teste de visualização: {str(e)}")
         return f"Erro no teste: {str(e)}"
     
 
@@ -1458,7 +1454,7 @@ def verificar_serializacao_json(dados):
         json.dumps(dados)
         return True
     except Exception as e:
-        print(f"❌ Erro de serialização JSON: {e}")
+        print(f" Erro de serialização JSON: {e}")
         return False
 
 def limpar_dados_para_json(dados):
@@ -1495,7 +1491,7 @@ def limpar_pedidos():
         
     except Exception as e:
         db.session.rollback()
-        flash(f'❌ Erro ao limpar pedidos: {str(e)}', 'error')
+        flash(f' Erro ao limpar pedidos: {str(e)}', 'error')
     
     return redirect(url_for('roteamento.index'))
 
@@ -1515,7 +1511,7 @@ def limpar_pedidos_pendentes():
         
     except Exception as e:
         db.session.rollback()
-        flash(f'❌ Erro ao limpar pedidos pendentes: {str(e)}', 'error')
+        flash(f' Erro ao limpar pedidos pendentes: {str(e)}', 'error')
     
     return redirect(url_for('roteamento.index'))
 
@@ -1538,7 +1534,7 @@ def limpar_pedidos_testes():
         
     except Exception as e:
         db.session.rollback()
-        flash(f'❌ Erro ao limpar pedidos de teste: {str(e)}', 'error')
+        flash(f' Erro ao limpar pedidos de teste: {str(e)}', 'error')
     
     return redirect(url_for('roteamento.index'))
 
@@ -1574,5 +1570,5 @@ def api_animacao(execucao_id):
         })
 
     except Exception as e:
-        print(f"❌ [API Animacao] Erro: {e}")
+        print(f" [API Animacao] Erro: {e}")
         return jsonify({"status": "error", "mensagem": str(e)}), 500

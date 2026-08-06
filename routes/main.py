@@ -6,7 +6,7 @@ from decimal import Decimal
 
 main_bp = Blueprint('main', __name__)
 
-CART_SESSION_KEY = 'cart'   # chave na session para o carrinho
+CART_SESSION_KEY = 'cart'  
 
 
 # -------------------------
@@ -113,7 +113,7 @@ def carrinho():
 
 @main_bp.route('/carrinho/atualizar', methods=['POST'])
 def atualizar_carrinho():
-    # Espera dados no formato form: qty_<produto_id> = quantidade
+
     cart = {}
     for key, value in request.form.items():
         if key.startswith('qty_'):
@@ -163,9 +163,9 @@ def checkout():
         salvar_localizacao = request.form.get('salvar_localizacao') == 'on'
 
         try:
-            # Criar Localizacao (não duplicamos checagem sofisticada aqui)
+            # Criar Localizacao
             local = Localizacao(nome=f'Endereço de {nome}', latitude=0.0, longitude=0.0, tipo='cliente')
-            # Se você tiver lat/lon reais, substitua aqui.
+            
             db.session.add(local)
             db.session.flush()  # garantir id
 

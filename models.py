@@ -119,6 +119,3 @@ class Entregador(db.Model):
     
     def __repr__(self):
         return f'<Entregador {self.nome} - {self.veiculo}>'
-
-# Removemos as classes/funções que foram movidas para algoritmos/
-# ResultadoKMeans, executar_kmeans, etc. agora estão em algoritmos/kmeans.py

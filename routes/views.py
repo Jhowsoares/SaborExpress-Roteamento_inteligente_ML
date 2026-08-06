@@ -110,8 +110,6 @@ def executar_kmeans_route():
     try:
         num_clusters = int(request.form.get('num_clusters', 3))
         max_entregas = int(request.form.get('max_entregas', 5))
-
-        # Aqui manteremos a lógica simples: reutilizar OtimizadorEntregas para executar tudo de uma vez
         pedidos = Pedido.query.filter_by(status='pendente').all()
         localizacoes = Localizacao.query.all()
         entregadores = Entregador.query.filter_by(disponivel=True).all()
@@ -155,7 +153,6 @@ def otimizar_rotas_completas():
 
         localizacoes_dict = {loc.id: loc for loc in localizacoes}
 
-        # Construir arestas (preferir rotas do banco, senão usar haversine)
         arestas = []
         if rotas_db:
             for r in rotas_db:
@@ -181,7 +178,7 @@ def otimizar_rotas_completas():
                     })
 
         grafo = construir_grafo(localizacoes, arestas)
-        # montar container esperado pelo otimizador (compatível com sua implementação)
+      
         local_container = {
             'locs': localizacoes_dict,
             'grafo': grafo
@@ -219,7 +216,7 @@ def otimizar_rotas_completas():
 def resultado_kmeans(execucao_id):
     """Mostra resultado da otimização"""
     try:
-        # Em vez de buscar do banco, vamos executar a otimização diretamente
+     
         from models import Pedido, Localizacao, Entregador
         from algoritmos.otimizador_integrado import OtimizadorEntregas
         
@@ -361,7 +358,7 @@ def grafo_interativo():
         entregadores = Entregador.query.filter_by(disponivel=True).all()
         localizacoes_dict = {loc.id: loc for loc in localizacoes}
         
-        print(f"🔧 Processando {len(pedidos)} pedidos, {len(localizacoes)} localizações...")
+        print(f" Processando {len(pedidos)} pedidos, {len(localizacoes)} localizações...")
         
         ot = OtimizadorEntregas()
         resultado = ot.otimizar_rotas_completas(

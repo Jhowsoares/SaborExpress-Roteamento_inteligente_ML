@@ -14,7 +14,7 @@ def send_test_email(to_address: str):
             subject="Teste de envio - Sabor Express",
             recipients=[to_address],
             body="Olá — este é um teste de envio real via Brevo SMTP.",
-            sender=app.config.get('MAIL_DEFAULT_SENDER')
+            sender=app.config.get('en')
         )
         try:
             mail.send(msg)
@@ -24,4 +24,4 @@ def send_test_email(to_address: str):
 
 if __name__ == "__main__":
     # Altere para o e-mail que quer testar
-    send_test_email("seuemaildestino@exemplo.com")
+    send_test_email("ensj2017@gmail.com")

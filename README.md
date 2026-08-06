@@ -58,13 +58,13 @@ Dentro de cada cluster, o A\* determina a **sequência ideal de entregas**, redu
 ## 🧩 Estrutura do Projeto
 
 ```
-📦 hamburgueria_deploy/
+📦 SaborExpress-Roteamento_inteligente_ML/
  ┣ 📂 routes/              → Rotas Flask (admin, roteamento, etc.)
- ┣ 📂 templates/admin/     → Templates HTML (painel e gráficos)
- ┣ 📂 static/css/          → Estilos e temas modernos
- ┣ 📂 static/img/          → Imagens e ícones
+ ┣ 📂 templates/           → Templates HTML (painel e gráficos)
+ ┣ 📂 static/              → Estilos, imagens e assets
  ┣ 📂 algoritmos/          → Implementação de A* e K-Means
  ┣ 📜 app.py               → Inicialização do servidor Flask
+ ┣ 📜 .env.example         → Variáveis de ambiente (modelo)
  ┗ 📜 README.md
 ```
 
